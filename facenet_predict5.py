@@ -98,7 +98,7 @@ images = ['frame1.jpg','frame2.jpg','frame3.jpg','frame4.jpg','frame5.jpg','fram
 '''
 #images = ['frame1.jpg','frame2.jpg','frame3.jpg','frame4.jpg','frame5.jpg','frame6.jpg','frame7.jpg','frame8.jpg','frame9.jpg','frame10.jpg']
 #images = ['frame37.jpg','frame38.jpg','frame39.jpg','frame40.jpg','frame41.jpg','frame42.jpg','frame43.jpg']
-images = ['frame55.jpg']
+images = ['frame56.jpg','frame57.jpg','frame58.jpg','frame59.jpg','frame60.jpg','frame61.jpg']
 path=".\\img\\"
 path2=".\\img2\\"
 

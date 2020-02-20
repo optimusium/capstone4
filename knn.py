@@ -30,9 +30,10 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix
 #from sklearn.metrics import multilabel_confusion_matrix
 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier,BaggingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
+
 
 import process_csv
 '''
@@ -139,7 +140,8 @@ X_train,X_test,Y_train0,Y_test0,Y_train1,Y_test1,Y_train2,Y_test2,Y_train3,Y_tes
 
 print("KNN0")
 #KNN = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=0)
-KNN=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
+KNNa=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
+KNN = BaggingClassifier(base_estimator=KNNa,n_estimators=10, random_state=0)
 KNN.fit(X_train,Y_train0)
 filename="KNN0.sav"
 pickle.dump(KNN,open(filename,'wb'))
@@ -149,8 +151,9 @@ CM=confusion_matrix(Y_test0,prediction)
 print(CM)
 
 print("KNN1")
-KNN1=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
+KNN1a=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
 #KNN1 = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=5)
+KNN1 = BaggingClassifier(base_estimator=KNN1a,n_estimators=10, random_state=0)
 KNN1.fit(X_train,Y_train1)
 filename="KNN1.sav"
 pickle.dump(KNN1,open(filename,'wb'))
@@ -161,7 +164,9 @@ print(CM)
 
 print("KNN2")
 #KNN2 = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=5)
-KNN2=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
+KNN2a=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
+KNN2 = BaggingClassifier(base_estimator=KNN2a,n_estimators=10, random_state=0)
+
 KNN2.fit(X_train,Y_train2)
 filename="KNN2.sav"
 pickle.dump(KNN2,open(filename,'wb'))
@@ -172,7 +177,8 @@ print(CM)
 
 print("KNN3")
 #
-KNN3=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
+KNN3a=KNeighborsClassifier(n_neighbors=5) #LogisticRegression(random_state=0, C=1.0)
+KNN3 = BaggingClassifier(base_estimator=KNN3a,n_estimators=10, random_state=0)
 #KNN3 = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=5)
 KNN3.fit(X_train,Y_train3)
 filename="KNN3.sav"

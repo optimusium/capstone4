@@ -225,6 +225,9 @@ def process_csv():
     Y0 = np.where(Y0<54,1000,Y0)
     Y0 = np.where(Y0==54,999,Y0)
     Y0 = np.where(Y0==55,1000,Y0)
+    Y0 = np.where(Y0<58,999,Y0)
+    Y0 = np.where(Y0<61,998,Y0)
+    Y0 = np.where(Y0==61,999,Y0)
     
     '''
     For further image entry, like new image frame56.jpg it is not a targeting image, then
