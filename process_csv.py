@@ -214,6 +214,15 @@ def process_csv():
     '''
     X = loadtxt('imgall_merged_representation.csv', delimiter=',')
     Y0 = loadtxt('imgall_merged_representation_result.csv', delimiter=',')
+    YS = loadtxt('lookup.csv', delimiter=',')
+    print(Y0)
+    for i in range(YS.shape[0]-1,-1,-1):
+        print("frame",YS[i][0],1000-YS[i][1])
+        print(Y0)
+        #exec('Y0 = np.where(Y0==%i,%i,Y0)'%(YS[i][0],(1000-YS[i][1]) ) )
+        Y0 = np.where(Y0==YS[i][0],1000-YS[i][1],Y0)
+        print(Y0)
+    '''
     Y0 = np.where(Y0<6,999,Y0)
     Y0 = np.where(Y0<11,998,Y0)
     Y0 = np.where(Y0==11,997,Y0)
@@ -228,6 +237,8 @@ def process_csv():
     Y0 = np.where(Y0<58,999,Y0)
     Y0 = np.where(Y0<61,998,Y0)
     Y0 = np.where(Y0==61,999,Y0)
+    Y0 = np.where(Y0==62,999,Y0)
+    '''
     
     '''
     For further image entry, like new image frame56.jpg it is not a targeting image, then
