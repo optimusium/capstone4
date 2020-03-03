@@ -1,0 +1,11 @@
+#Function of the code
+Identify webcam video of people that have their images saved in the known_people folder, by drawing a bounding box around the identified faces and writing the name of the identified person below the bounding box. If the faces is not known, then the word "Unknown" will be wrtitten below the bounding box.
+
+#Required packages
+Please see requirement.txt.
+
+#known_people folder
+Add image of people to be identify by the code here, and use the name of the person to name the image.
+
+#Running the code
+In Command Prompt, run python recognise_face.py
