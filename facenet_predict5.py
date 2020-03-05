@@ -70,7 +70,8 @@ def grayplt(img,title=''):
 
     # Show the image
     if np.size(img.shape) == 3:
-        ax.imshow(img[:,:,0],cmap='hot',vmin=0,vmax=1)
+        ax.imshow(img,vmin=0,vmax=1)
+        #ax.imshow(img[:,:,0],cmap='hot',vmin=0,vmax=1)
     else:
         ax.imshow(img,cmap='hot',vmin=0,vmax=1)
    
@@ -87,9 +88,9 @@ def adjust_gamma(image, gamma=1.0):
 
 
 detector = MTCNN()
-#images=[]
-#for i in range(1,55,1):
-#    images.append("frame%i.jpg" % i)
+images=[]
+for i in range(1,6,1):
+    images.append("frame%i.jpg" % i)
 '''
 images = ['frame1.jpg','frame2.jpg','frame3.jpg','frame4.jpg','frame5.jpg','frame6.jpg','frame7.jpg','frame8.jpg','frame9.jpg',\
           'frame10.jpg','frame11.jpg','frame12.jpg','frame13.jpg','frame14.jpg','frame15.jpg','frame16.jpg','frame17.jpg','frame18.jpg','frame19.jpg',\
@@ -98,7 +99,8 @@ images = ['frame1.jpg','frame2.jpg','frame3.jpg','frame4.jpg','frame5.jpg','fram
 '''
 #images = ['frame1.jpg','frame2.jpg','frame3.jpg','frame4.jpg','frame5.jpg','frame6.jpg','frame7.jpg','frame8.jpg','frame9.jpg','frame10.jpg']
 #images = ['frame37.jpg','frame38.jpg','frame39.jpg','frame40.jpg','frame41.jpg','frame42.jpg','frame43.jpg']
-images = ['frame56.jpg','frame57.jpg','frame58.jpg','frame59.jpg','frame60.jpg','frame61.jpg']
+#images = ['frame56.jpg','frame57.jpg','frame58.jpg','frame59.jpg','frame60.jpg','frame61.jpg']
+#images = ['frame62.jpg']
 path=".\\img\\"
 path2=".\\img2\\"
 
@@ -117,13 +119,37 @@ def image_process(images,gamma,ratioo,flip,blur):
     for img in images:
         
         imag=cv2.imread(path+img)
+        imag = cv2.cvtColor(imag, cv2.COLOR_BGR2RGB)
+        print("before")
         grayplt(imag/255)
+        
         if flip==1:
             imag=np.fliplr(imag)
+            
         if blur==1:
             imag=cv2.GaussianBlur(imag,(5,5),0)
+        elif blur==2:
+            #imag=cv2.GaussianBlur(imag,(5,5),0)
+            imag=cv2.GaussianBlur(imag,(3,3),0)
+            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            imag = cv2.filter2D(imag, -1, kernel)
+        elif blur==3:
+            #imag=cv2.GaussianBlur(imag,(5,5),0)
+            #imag=cv2.GaussianBlur(imag,(3,3),0)
+            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            imag = cv2.filter2D(imag, -1, kernel)
+        elif blur==4:
+            imag=cv2.GaussianBlur(imag,(5,5),0)
+            #imag=cv2.GaussianBlur(imag,(3,3),0)
+            kernel = np.array([[-1,-1,-1], [-1,9,-1], [-1,-1,-1]])
+            imag = cv2.filter2D(imag, -1, kernel)
+
+            
         imag=adjust_gamma(imag,gamma)
+        print("after")
         grayplt(imag/255)
+        #continue
+        
         result = detector.detect_faces(imag)
         print("rawimage",result)
         if result==[]: continue
@@ -180,29 +206,68 @@ def image_process(images,gamma,ratioo,flip,blur):
         imag=imag[top_bound:bottom_bound, left_bound:right_bound]
         #print("32")
         #grayplt(imag/255)
+        #print(imag.shape)
+        
+        #break
+        
         if left_length>right_length:
-            delta=int( (left_length-right_length)/4 )
-            res1=np.zeros((imag.shape[0],delta,3))
-            imag=np.concatenate((res1,imag,res1),axis=1)
+            if left_length<80:
+                delta=int( (left_length-right_length)/4 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((res1,imag,res1),axis=1)
+            elif left_length>=80 :
+                delta=int( (left_length-right_length)/2 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((imag,res1),axis=1)            
         if right_length>left_length:
-            delta=int( (right_length-left_length)/4 )
-            res1=np.zeros((imag.shape[0],delta,3))
-            imag=np.concatenate((res1,imag,res1),axis=1)
+            if right_length<80:
+                delta=int( (right_length-left_length)/4 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((res1,imag,res1),axis=1)
+            elif right_length>=80:
+                delta=int( (right_length-left_length)/2 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((res1,imag),axis=1)
         if top_length>bottom_length:
-            delta=int( (top_length-bottom_length)/4 )
-            res1=np.zeros((delta,imag.shape[1],3))
-            imag=np.concatenate((res1,imag,res1))
+            if top_length<80:
+                delta=int( (top_length-bottom_length)/4 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((res1,imag,res1))
+            elif top_length>=80:
+                delta=int( (top_length-bottom_length)/2 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((imag,res1))
         if bottom_length>top_length:
-            delta=int( (bottom_length-top_length)/4 )
-            res1=np.zeros((delta,imag.shape[1],3))
-            imag=np.concatenate((res1,imag,res1))
+            if bottom_length<80:
+                delta=int( (bottom_length-top_length)/4 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((res1,imag,res1))
+            if bottom_length>=80:
+                delta=int( (bottom_length-top_length)/2 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((res1,imag))
+        
+        
+        #grayplt(imag/255)
+        print(imag.shape)
+        #raise
+        rati=max(left_length,right_length,top_length,bottom_length)
+        rati=79.9/rati
+        imag=cv2.resize(imag,(int(imag.shape[1]*rati),int(imag.shape[0]*rati)), interpolation = cv2.INTER_CUBIC)
+        
+        ratoo=[1.0]
+        for ratioo in [1.1,1.2,1.4,1.5,1.6,1.8,2.0]:
+            if ratioo>rati:
+                ratoo.append(ratioo)
+        print(rati,ratoo)
+        #raise
             
         if imag.shape[0]>=imag.shape[1]:
             ratio=160/imag.shape[0]
             imag = cv2.resize(imag,(int(imag.shape[1]*ratio),160), interpolation = cv2.INTER_CUBIC)
             if imag.shape[1]<160:
                 delta=int( (160-imag.shape[1])/2 )
-                res1=np.zeros((imag.shape[0],delta,3))
+                res1=np.ones((imag.shape[0],delta,3))*140
                 imag=np.concatenate((res1,imag,res1),axis=1)
             #grayplt(imag/255)
         elif imag.shape[0]<imag.shape[1]:
@@ -210,29 +275,36 @@ def image_process(images,gamma,ratioo,flip,blur):
             imag = cv2.resize(imag,(160,int(imag.shape[0]*ratio)), interpolation = cv2.INTER_CUBIC)
             if imag.shape[1]<160:
                 delta=int( (160-imag.shape[0])/2 )
-                res1=np.zeros((delta,imag.shape[1],3))
+                res1=np.ones((delta,imag.shape[1],3))*140
                 imag=np.concatenate((res1,imag,res1),axis=0)
                 
             #grayplt(imag/255)
-        grayplt(imag/255)
+        #grayplt(imag/255)
+        #print(imag.shape)
+        #raise
         #continue
+        #break
             
         img_pointer=eval(img.replace(".jpg","").replace("frame",""))
-        for rotate in [-10,0,10]:
+        for rotate in [-10,-5,0,5,10]:
             if rotate!=0:
                 imag1 = ndimage.rotate(imag, rotate, mode='nearest')
             else:
                 imag1=imag
                 
             
-            for ratioo in [0.8,0.9,1.0,1.1,1.2,1.4,1.5,1.6,1.8]:
+            for ratioo in ratoo:
+                
             #for ratioo in [0.8]:
+                print(ratioo)
                 if ratioo==1:
                     imag2 = cv2.resize(imag1,(160, 160), interpolation = cv2.INTER_CUBIC)
                 else:
                     imag2 = cv2.resize(imag1,(int(160*ratioo), int(160*ratioo)), interpolation = cv2.INTER_CUBIC)
                 #print("before")    
                 #grayplt(imag2/255)
+                #print(imag2.shape)
+                #raise
                 result3a = detector.detect_faces(imag2)
                 print("just raw scaled",result3a)
                 if result3a==[]: continue
@@ -253,34 +325,34 @@ def image_process(images,gamma,ratioo,flip,blur):
                     elif coor[1]<80 and coor[0]>=80:
                         #print("923",coor)
                         diff1=80-coor[1]
-                        res1=np.zeros((diff1,imag2.shape[1],3))
+                        res1=np.ones((diff1,imag2.shape[1],3))*140
                         #grayplt(imag2/255)
                         imag2=np.concatenate((res1,imag2))   
                         #grayplt(imag2/255)
-                        imag2=imag2[0:160,coor[0]-80:coor[0]+80]
+                        imag2=imag2[0:160,coor[0]-80:coor[0]+80] 
                     elif coor[0]<80 and coor[1]>=80:
                         #print("926",coor)
                         diff1=80-coor[0]
-                        res1=np.zeros((imag2.shape[0],diff1,3))
+                        res1=np.ones((imag2.shape[0],diff1,3))*140
                         imag2=np.concatenate((res1,imag2),axis=1)                        
                         imag2=imag2[coor[1]-80:coor[1]+80,0:160]
                     elif coor[0]<80 and coor[1]<80:
                         #print("927",coor)
                         diff1=80-coor[0]
-                        res1=np.zeros((imag2.shape[0],diff1,3))
+                        res1=np.ones((imag2.shape[0],diff1,3))*140
                         imag2=np.concatenate((res1,imag2),axis=1)                        
                         diff1=80-coor[1]
-                        res1=np.zeros((diff1,imag2.shape[1],3))
+                        res1=np.ones((diff1,imag2.shape[1],3))*140
                         imag2=np.concatenate((res1,imag2))    
                         imag2=imag2[0:160,0:160]
                     if imag2.shape[1]<160:
                         #print("i m here2")
                         diff1=160-imag2.shape[1]
-                        res1=np.zeros((imag2.shape[0],diff1,3))
+                        res1=np.ones((imag2.shape[0],diff1,3))*140
                         imag2=np.concatenate((imag2,res1),axis=1)
                     if imag2.shape[0]<160:
                         diff1=160-imag2.shape[0]
-                        res1=np.zeros((diff1,imag2.shape[1],3))
+                        res1=np.ones((diff1,imag2.shape[1],3))*140
                         imag2=np.concatenate((imag2,res1))
                         
                         
@@ -296,13 +368,13 @@ def image_process(images,gamma,ratioo,flip,blur):
                     if coor[0]<80:
                         #print(":i m here")
                         diff1=80-coor[0]
-                        res1=np.zeros((imag2.shape[0],diff1,3))
+                        res1=np.ones((imag2.shape[0],diff1,3))*140
                         imag2=np.concatenate((res1,imag2),axis=1)
                         #grayplt(imag2/255)
                         if imag2.shape[1]<160:
                             #print("i m here2")
                             diff1=160-imag2.shape[1]
-                            res1=np.zeros((imag2.shape[0],diff1,3))
+                            res1=np.ones((imag2.shape[0],diff1,3))*140
                             imag2=np.concatenate((imag2,res1),axis=1)
                             #grayplt(imag2/255)
                         elif imag2.shape[1]>160:
@@ -311,15 +383,15 @@ def image_process(images,gamma,ratioo,flip,blur):
                     elif coor[0]>=80:
                         #print(coor[0])
                         diff1=coor[0]-80
-                        grayplt(imag2/255)
+                        #grayplt(imag2/255)
                         imag2=imag2[:,diff1:160+diff1]
-                        grayplt(imag2/255)
+                        #grayplt(imag2/255)
                         if imag2.shape[1]<160:
                             print("i m here2")
                             diff1=160-imag2.shape[1]
-                            res1=np.zeros((imag2.shape[0],diff1,3))
+                            res1=np.ones((imag2.shape[0],diff1,3))*140
                             imag2=np.concatenate((imag2,res1),axis=1)
-                            grayplt(imag2/255)
+                            #grayplt(imag2/255)
                         
                         #res1=np.zeros((imag2.shape[0],diff1,3))
                         #imag2=np.concatenate((res1,imag2,res1),axis=1)
@@ -329,11 +401,11 @@ def image_process(images,gamma,ratioo,flip,blur):
                         
                     if coor[1]<80:
                         diff1=80-coor[1]
-                        res1=np.zeros((diff1,imag2.shape[1],3))
+                        res1=np.ones((diff1,imag2.shape[1],3))*140
                         imag2=np.concatenate((res1,imag2))
                         if imag2.shape[0]<160:
                             diff1=160-imag2.shape[0]
-                            res1=np.zeros((diff1,imag2.shape[1],3))
+                            res1=np.ones((diff1,imag2.shape[1],3))*140
                             imag2=np.concatenate((imag2,res1))
                         elif imag2.shape[0]>160:
                             imag2=imag2[0:160,:]
@@ -343,7 +415,7 @@ def image_process(images,gamma,ratioo,flip,blur):
                         imag2=imag2[diff1:160+diff1,:]
                         if imag2.shape[0]<160:
                             diff1=160-imag2.shape[0]
-                            res1=np.zeros((diff1,imag2.shape[1],3))
+                            res1=np.ones((diff1,imag2.shape[1],3))*140
                             imag2=np.concatenate((imag2,res1))
                         #res1=np.zeros((imag2.shape[0],diff1,3))
                         #imag2=np.concatenate((res1,imag2,res1),axis=1)
@@ -382,24 +454,24 @@ def image_process(images,gamma,ratioo,flip,blur):
                 #    print(ratioo)
                 #    grayplt(imag2/255)
 
-                for sh in [-5,0,5]:
+                for sh in [-3,0,3]:
                     if sh!=0:
                         res1 = np.roll(imag2, sh, axis=0)
                         if sh<0:
-                            res1[160+sh:160,0:160]=0
+                            res1[160+sh:160,0:160]=140
                         if sh>0:
-                            res1[0:sh,0:160]=0
+                            res1[0:sh,0:160]=140
                     else:
                         res1=imag2
                     
-                    for sh2 in [-5,0,5]:
+                    for sh2 in [-3,0,3]:
                         
                         if sh2!=0:
                             res2 = np.roll(res1, sh2, axis=1)
                             if sh2<0:
-                                res2[0:160,160+sh2:160]=0
+                                res2[0:160,160+sh2:160]=140
                             if sh2>0:
-                                res2[0:160,0:sh2]=0
+                                res2[0:160,0:sh2]=140
                         else:
                             res2=res1
                         
@@ -423,17 +495,42 @@ def image_process(images,gamma,ratioo,flip,blur):
                         if result3[0]['confidence']<0.95: continue
                         
                         print("sampled ",img_pointer,rotate,ratioo,sh,sh2)
-                        grayplt(res2/255)
-                        res3=np.expand_dims(res2,axis=0)
+                        
+                        #grayplt(res2/255)
+                        
+                        #res22 = cv2.cvtColor(res2, cv2.COLOR_BGR2GRAY)
+                        #res22=np.dot(res2[...,:3],[.3,.6,.1])
+                        res22=(res2-res2%16)
+                        #res22=res2
+                        res22.astype('int')
+                        #res22[(res22<=200)&(res22>=120)]=res22[(res22<=200)&(res22>=120)]-res22[(res22<=200)&(res22>=120)]%120
+                        #res22[(res22<=198)&(res22>=90)]=res22[(res22<=198)&(res22>=90)]-res22[(res22<=198)&(res22>=90)]%90
+                        #print(res22[20,87])
+                        #print(res22[50,60])
+                        
+                        #print("res22")
+                        #grayplt(res22/255)
+                        #import matplotlib
+                        #matplotlib.image.imsave('res22.png',res22)
+                        '''
+                        res22=cv2.imread('res22.jpg')
+                        res22 = cv2.cvtColor(res22, cv2.COLOR_BGR2RGB)
+                        cv2.imwrite('res22.jpg',res22)
+                        '''
+                        #raise
+                        res3=np.expand_dims(res22,axis=0)
                         predicted=model.predict(res3)
                         #print(predicted)
+                        
                         
                         with open('imgall_merged_representation.csv', "ab") as ff:
                             savetxt(ff, predicted, delimiter=',')
                         with open('imgall_merged_representation_result.csv', "ab") as ff:
                             savetxt(ff, [img_pointer], delimiter=',')
                         
-                        
+                        del predicted
+                        del res3
+                        gc.collect()
                         
                 #raise
 
@@ -453,6 +550,26 @@ image_process(images,0.8,0.8,1,0)
 image_process(images,1.0,0.8,0,1)
 image_process(images,1.2,0.8,0,1)
 image_process(images,0.8,0.8,0,1)
+
+image_process(images,1.0,0.8,1,1)
+image_process(images,1.2,0.8,1,1)
+image_process(images,0.8,0.8,1,1)
+
+image_process(images,1.0,0.8,0,2)
+image_process(images,1.2,0.8,0,2)
+image_process(images,0.8,0.8,0,2)
+
+image_process(images,1.0,0.8,1,2)
+image_process(images,1.2,0.8,1,2)
+image_process(images,0.8,0.8,1,2)
+
+image_process(images,1.0,0.8,0,3)
+image_process(images,1.2,0.8,0,3)
+image_process(images,0.8,0.8,0,3)
+
+image_process(images,1.0,0.8,1,3)
+image_process(images,1.2,0.8,1,3)
+image_process(images,0.8,0.8,1,3)
 
 #image_process(images,1.5)
 #image_process(images,1.2)

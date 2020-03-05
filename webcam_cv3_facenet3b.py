@@ -185,28 +185,55 @@ def image_process(imag,gamma):
         #print("32")
         #grayplt(imag/255)
         if left_length>right_length:
-            delta=int( (left_length-right_length)/4 )
-            res1=np.zeros((imag.shape[0],delta,3))
-            imag=np.concatenate((res1,imag,res1),axis=1)
+            if left_length<80:
+                delta=int( (left_length-right_length)/4 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((res1,imag,res1),axis=1)
+            elif left_length>=80 :
+                delta=int( (left_length-right_length)/2 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((imag,res1),axis=1)            
         if right_length>left_length:
-            delta=int( (right_length-left_length)/4 )
-            res1=np.zeros((imag.shape[0],delta,3))
-            imag=np.concatenate((res1,imag,res1),axis=1)
+            if right_length<80:
+                delta=int( (right_length-left_length)/4 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((res1,imag,res1),axis=1)
+            elif right_length>=80:
+                delta=int( (right_length-left_length)/2 )
+                res1=np.ones((imag.shape[0],delta,3))*140
+                imag=np.concatenate((res1,imag),axis=1)
         if top_length>bottom_length:
-            delta=int( (top_length-bottom_length)/4 )
-            res1=np.zeros((delta,imag.shape[1],3))
-            imag=np.concatenate((res1,imag,res1))
+            if top_length<80:
+                delta=int( (top_length-bottom_length)/4 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((res1,imag,res1))
+            elif top_length>=80:
+                delta=int( (top_length-bottom_length)/2 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((imag,res1))
         if bottom_length>top_length:
-            delta=int( (bottom_length-top_length)/4 )
-            res1=np.zeros((delta,imag.shape[1],3))
-            imag=np.concatenate((res1,imag,res1))
+            if bottom_length<80:
+                delta=int( (bottom_length-top_length)/4 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((res1,imag,res1))
+            if bottom_length>=80:
+                delta=int( (bottom_length-top_length)/2 )
+                res1=np.ones((delta,imag.shape[1],3))*140
+                imag=np.concatenate((res1,imag))
+
+        #grayplt(imag/255)
+        print(imag.shape)
+        #raise
+        rati=max(left_length,right_length,top_length,bottom_length)
+        rati=79.9/rati
+        imag=cv2.resize(imag,(int(imag.shape[1]*rati),int(imag.shape[0]*rati)), interpolation = cv2.INTER_CUBIC)
             
         if imag.shape[0]>=imag.shape[1]:
             ratio=160/imag.shape[0]
             imag = cv2.resize(imag,(int(imag.shape[1]*ratio),160), interpolation = cv2.INTER_CUBIC)
             if imag.shape[1]<160:
                 delta=int( (160-imag.shape[1])/2 )
-                res1=np.zeros((imag.shape[0],delta,3))
+                res1=np.ones((imag.shape[0],delta,3))*140
                 imag=np.concatenate((res1,imag,res1),axis=1)
             #grayplt(imag/255)
         elif imag.shape[0]<imag.shape[1]:
@@ -214,7 +241,7 @@ def image_process(imag,gamma):
             imag = cv2.resize(imag,(160,int(imag.shape[0]*ratio)), interpolation = cv2.INTER_CUBIC)
             if imag.shape[1]<160:
                 delta=int( (160-imag.shape[0])/2 )
-                res1=np.zeros((delta,imag.shape[1],3))
+                res1=np.ones((delta,imag.shape[1],3))*140
                 imag=np.concatenate((res1,imag,res1),axis=0)
                 
             #grayplt(imag/255)
@@ -414,7 +441,10 @@ while True:
         #numm+=1
         #saved=cv2.resize(frame[y:y+h,x:x+w], (160,160), interpolation = cv2.INTER_AREA)
         gamma=1
-        success,imag=image_process(frame[y:y+h,x:x+w],gamma)   
+        imgg=cv2.imread("./img/frame59.jpg")
+        #imgg=adjust_gamma(imgg, gamma=0.8)
+        #success,imag=image_process(frame[y:y+h,x:x+w],gamma)   
+        success,imag=image_process(imgg,gamma)   
         if success==False: continue
         cv2.imwrite('saved.jpg',frame[y:y+h,x:x+w])
         print("image updated as saved.jpg")
