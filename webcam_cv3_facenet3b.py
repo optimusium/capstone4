@@ -247,6 +247,7 @@ def image_process(imag,gamma):
             #grayplt(imag/255)
         imag = cv2.resize(imag,(160,160), interpolation = cv2.INTER_CUBIC)
         grayplt(imag/255)
+        imag=(imag-imag%16)
         #continue
     return True,imag
 
