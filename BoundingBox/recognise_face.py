@@ -15,7 +15,14 @@ import os
 import glob
 
 # Get a reference to webcam #0 (the default one)
-video_capture = cv2.VideoCapture(0)
+video_capture = cv2.VideoCapture(1)
+
+# Increase the resolution of the video
+def make_1080p():
+    video_capture.set(3, 1920)
+    video_capture.set(4, 1080)
+
+make_1080p()
 
 #make array of sample pictures with encodings
 known_face_encodings = []
@@ -51,6 +58,9 @@ while True:
 
     # Resize frame of video to 1/4 size for faster face recognition processing
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+    
+    # Resize frame of video to 3 times the size for larger display
+    frame = cv2.resize(frame, (0,0), fx=3, fy=3) 
 
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     rgb_small_frame = small_frame[:, :, ::-1]
@@ -85,19 +95,20 @@ while True:
 
     # Display the results
     for (top, right, bottom, left), name in zip(face_locations, face_names):
-        # Scale back up face locations since the frame we detected in was scaled to 1/4 size
-        top *= 4
-        right *= 4
-        bottom *= 4
-        left *= 4
+        # Scale back up face locations since the frame we detected in was scaled to 1/12 size
+        top *= 12
+        right *= 12
+        bottom *= 12
+        left *= 12
 
         # Draw a box around the face
+        
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
 
         # Draw a label with a name below the face
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+        cv2.putText(frame, name, (left + 6, bottom - 6), font, 5.0, (0, 0, 0), 5)
 
     # Display the resulting image
     cv2.imshow('Video', frame)
