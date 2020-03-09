@@ -72,7 +72,8 @@ def grayplt(img,title=''):
 
     # Show the image
     if np.size(img.shape) == 3:
-        ax.imshow(img[:,:,0],cmap='hot',vmin=0,vmax=1)
+        #ax.imshow(img[:,:,0],cmap='hot',vmin=0,vmax=1)
+        ax.imshow(img,vmin=0,vmax=1)
     else:
         ax.imshow(img,cmap='hot',vmin=0,vmax=1)
    
@@ -442,10 +443,10 @@ while True:
         #numm+=1
         #saved=cv2.resize(frame[y:y+h,x:x+w], (160,160), interpolation = cv2.INTER_AREA)
         gamma=1
-        imgg=cv2.imread("./img/frame59.jpg")
+        #imgg=cv2.imread("./img/frame59.jpg")
         #imgg=adjust_gamma(imgg, gamma=0.8)
-        #success,imag=image_process(frame[y:y+h,x:x+w],gamma)   
-        success,imag=image_process(imgg,gamma)   
+        success,imag=image_process(cv2.cvtColor(frame[y:y+h,x:x+w], cv2.COLOR_BGR2RGB),gamma)   
+        #success,imag=image_process(imgg,gamma)   
         if success==False: continue
         cv2.imwrite('saved.jpg',frame[y:y+h,x:x+w])
         print("image updated as saved.jpg")
@@ -456,8 +457,7 @@ while True:
         #p1 = 'frame5.jpg'
         #p2 = 'image2/frame3.jpg'
         #p2 = 'image2/frame2.jpg'
-         
-        #img1_representation = model.predict(preprocess_image(p1))[0,:]
+        
         img2_representation = model.predict(resized) #(preprocess_image(resized))[0,:]
         result2=model3.predict(img2_representation)
         result3=model4.predict(img2_representation)
@@ -554,18 +554,34 @@ while True:
             print("not recognized")
         elif sel==1: 
             if result14==1 and result15==0  and result16==0:
-                print("Francis")
+                if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
+                    print("Not sure it is Francis")
+                else:
+                    print("Francis")
+                    
             else:
                 print("not recognized")
         elif sel==2: 
             if result15==1 and result14==0  and result16==0:            
-                print("Yu Ka")
+                
+                if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:                    
+                    print("Not sure it is Yu Ka")
+                else:
+                    print("Yu Ka")
+                
             else:
                 print("not recognized")
                 
         elif sel==3: 
             if result16==1 and result15==0  and result14==0:
-                print("Boon Ping")
+                
+                if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
+                    print("Not sure it is Boon Ping")
+                else:
+                    print("Boon Ping")
+                    
+                
+                
             else:
                 print("not recognized")
                 
@@ -573,12 +589,32 @@ while True:
             print("not recognized")
         #cv2.imwrite('saved_%i_%i.jpg'%(sel,numm),saved)
         print("\nResult with voting network only")    
-        if result14==1 and result15==0  and result16==0:
-            print("Francis")
-        elif result15==1 and result14==0  and result16==0:            
-            print("Yu Ka")
-        elif result16==1 and result15==0  and result14==0:
-            print("Boon Ping")
+        if result14==1 and result15==0  and result16==0: # and model11.predict_proba(img2_representation)[1]>0.666:
+            if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
+                print("Not sure it is Francis")
+            else:
+                print("Francis")
+        elif result15==1 and result14==0  and result16==0: # and model12.predict_proba(img2_representation)[1]>0.666:            
+            if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:                    
+                print("Not sure it is Yu Ka")
+            else:
+                print("Yu Ka")
+        elif result16==1 and result15==0  and result14==0: # and model13.predict_proba(img2_representation)[1]>0.666:
+            
+            '''
+            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            bottomLeftCornerOfText = (x+6,y+h+6)
+            fontScale              = 1
+            fontColor              = (255,255,255)
+            lineType               = 2            
+            font                   = cv2.FONT_HERSHEY_SIMPLEX
+            
+            cv2.putText(frame,'boonping', bottomLeftCornerOfText, font, fontScale,fontColor,lineType)
+            '''
+            if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
+                print("Not sure it is Boon Ping")
+            else:
+                print("Boon Ping")
         else:
             print("Not recognized")
             
@@ -592,7 +628,6 @@ while True:
            print("this is not boonping")
         ''' 
         
-
         #cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
         sleep(1)
         '''

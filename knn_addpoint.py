@@ -158,19 +158,24 @@ os.popen("del not0_result.csv")
 import random
 extra=np.array([])
 for i in range(X_train.shape[0]):
+    if i%3==1: continue
+    if i%3==2:
+        if i%5!=2: continue
+    if random.random()<0.2:continue    
     found=0
     tim=0
     while found==0 and tim<3:
         tim+=1
-        extr=X_train[i]+np.ones(128)*random.random()*0.66
+        extr=X_train[i]+np.ones(128)*random.random()*0.7
         extrr=np.expand_dims(extr,axis=0)
         dist=KNN.kneighbors(extrr,return_distance=True)
         prediction=KNN.predict(extrr)
         #print(dist)
         #print(prediction)
     
-        if prediction[0]==1 and min(dist[0][0])>3.5:
+        if prediction[0]==1 and min(dist[0][0])>4:
             extra=np.append(extra, extr, axis=0)
+            found=1
     if i%100==0: print(i,extra.shape)
     #if i==10: break
 extra=extra.reshape(int(extra.shape[0]/128),128)
@@ -222,19 +227,25 @@ os.popen("del not1_result.csv")
 import random
 extra=np.array([])
 for i in range(X_train.shape[0]):
+    if i%3==1: continue
+    if i%3==2:
+        if i%5!=2: continue
+    if random.random()<0.2:continue        
     found=0
     tim=0
-    while found==0 and tim<20:
+    while found==0 and tim<3:
         tim+=1
-        extr=X_train[i]+np.ones(128)*random.random()*0.66
+        extr=X_train[i]+np.ones(128)*random.random()*0.7
         extrr=np.expand_dims(extr,axis=0)
         dist=KNN1.kneighbors(extrr,return_distance=True)
         prediction=KNN1.predict(extrr)
+        
         #print(dist)
         #print(prediction)
     
-        if prediction[0]==1 and min(dist[0][0])>3.5:
+        if prediction[0]==1 and min(dist[0][0])>4:
             extra=np.append(extra, extr, axis=0)
+            found=1
         #print(extra.shape)
     #if i==10: break
 extra=extra.reshape(int(extra.shape[0]/128),128)
@@ -284,19 +295,24 @@ os.popen("del not2_result.csv")
 import random
 extra=np.array([])
 for i in range(X_train.shape[0]):
+    if i%3==1: continue
+    if i%3==2:
+        if i%5!=2: continue
+    if random.random()<0.2:continue        
     found=0
     tim=0
-    while found==0 and tim<20:
+    while found==0 and tim<3:
         tim+=1
-        extr=X_train[i]+np.ones(128)*random.random()*0.66
+        extr=X_train[i]+np.ones(128)*random.random()*0.7
         extrr=np.expand_dims(extr,axis=0)
         dist=KNN2.kneighbors(extrr,return_distance=True)
         prediction=KNN2.predict(extrr)
         #print(dist)
         #print(prediction)
     
-        if prediction[0]==1 and min(dist[0][0])>3.5:
+        if prediction[0]==1 and min(dist[0][0])>4:
             extra=np.append(extra, extr, axis=0)
+            found=1
         #print(extra.shape)
     #if i==10: break
 extra=extra.reshape(int(extra.shape[0]/128),128)
@@ -341,24 +357,31 @@ prediction=KNN3.predict(X_test)
 CM=confusion_matrix(Y_test3,prediction)
 print(CM)
 
+'''
 os.popen("del not3.csv")
 os.popen("del not3_result.csv")
 import random
 extra=np.array([])
 for i in range(X_train.shape[0]):
+    if i%3==1: continue
+    if i%3==2:
+        if i%5!=2: continue
+    if random.random()<0.2:continue    
+
     found=0
     tim=0
-    while found==0 and tim<20:
+    while found==0 and tim<3:
         tim+=1
-        extr=X_train[i]+np.ones(128)*random.random()*0.66
+        extr=X_train[i]+np.ones(128)*random.random()*0.7
         extrr=np.expand_dims(extr,axis=0)
         dist=KNN3.kneighbors(extrr,return_distance=True)
         prediction=KNN3.predict(extrr)
         #print(dist)
         #print(prediction)
     
-        if prediction[0]==1 and min(dist[0][0])>3.5:
+        if prediction[0]==1 and min(dist[0][0])>4:
             extra=np.append(extra, extr, axis=0)
+            found=1
         #print(extra.shape)
     #if i==10: break
 extra=extra.reshape(int(extra.shape[0]/128),128)
@@ -388,3 +411,4 @@ KNN3a=pickle.load(open(filename,'rb'))
 prediction=KNN3a.predict(X_test)
 CM=confusion_matrix(Y_test3,prediction)
 print(CM)
+'''

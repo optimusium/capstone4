@@ -1,40 +1,77 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jan 16 17:01:23 2020
+Created on Fri Jan 17 22:30:47 2020
 
 @author: boonping
 """
 
 import cv2
-import os,sys
+import sys
 import logging as log
 import datetime as dt
 from time import sleep
 import numpy as np
 from matplotlib import pyplot as plt
-import pickle
+
 '''
 from keras.preprocessing.image import ImageDataGenerator
 from keras.preprocessing.image import img_to_array
 from keras.preprocessing.image import load_img
 '''
-from sklearn.model_selection import train_test_split
-
+from tensorflow.keras.callbacks import ModelCheckpoint,CSVLogger,LearningRateScheduler
+from tensorflow.keras.models import Model
+from tensorflow.keras.models import load_model
+from tensorflow.keras.layers import Input
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Flatten,Dropout
+from tensorflow.keras.layers import Conv2D
+from tensorflow.keras.layers import BatchNormalization
+from tensorflow.keras.layers import Activation
+from tensorflow.keras.layers import AveragePooling2D,MaxPooling2D,UpSampling2D
+from tensorflow.keras.layers import add,Lambda
+from tensorflow.keras.regularizers import l2
+from tensorflow.keras.utils import to_categorical,plot_model
+#from tensorflow.keras.datasets import cifar10
+from tensorflow.keras import optimizers
+from tensorflow.keras import backend
+from tensorflow.keras.preprocessing.image import ImageDataGenerator,img_to_array,load_img
+import IPython
 from scipy import ndimage
 from scipy.ndimage.interpolation import shift
 from numpy import savetxt,loadtxt
+#savetxt('data.csv', data, delimiter=',')
+#data = loadtxt('data.csv', delimiter=',')
+import gc
+from skimage.transform import resize
 
+import pickle
 from sklearn.svm import SVC
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.decomposition import PCA
 from sklearn.metrics import confusion_matrix
-#from sklearn.metrics import multilabel_confusion_matrix
 
-from sklearn.ensemble import RandomForestClassifier,BaggingClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
+
+
+from sklearn.model_selection import train_test_split
 import process_csv
+
+'''
+model = load_model('facenet/facenet_keras.h5')
+model.summary()
+print(model.inputs)
+print(model.outputs)
+
+model.load_weights("facenet/facenet_keras_weights.h5")
+'''
+'''
+model2=load_model('facenet_network_model.hdf5')
+model2.summary()
+modelname="facenet_network"
+model2.load_weights(modelname + ".hdf5")
+'''
 '''
 X0 = loadtxt('img0_merged_representation.csv', delimiter=',')
 X1 = loadtxt('img1_merged_representation.csv', delimiter=',')
@@ -135,9 +172,48 @@ print(Y3.shape)
 #raise
 X_train,X_test,Y_train0,Y_test0,Y_train1,Y_test1,Y_train2,Y_test2,Y_train3,Y_test3 = train_test_split(X,Y0,Y1,Y2,Y3,test_size = 0.1)
 '''
+
 X_train,X_test,Y_train0,Y_test0,Y_train1,Y_test1,Y_train2,Y_test2,Y_train3,Y_test3 = process_csv.process_csv()
 
-print("MLP0")
+'''
+filename="svm0.sav"
+model3=pickle.load(open(filename,'rb'))
+filename="svm1.sav"
+model4=pickle.load(open(filename,'rb'))
+filename="svm2.sav"
+model5=pickle.load(open(filename,'rb'))
+filename="svm3.sav"
+model6=pickle.load(open(filename,'rb'))
+'''
+filename="MLP0.sav"
+model3=pickle.load(open(filename,'rb'))
+filename="MLP1.sav"
+model4=pickle.load(open(filename,'rb'))
+filename="MLP2.sav"
+model5=pickle.load(open(filename,'rb'))
+filename="MLP3.sav"
+model6=pickle.load(open(filename,'rb'))
+
+
+filename="LR0.sav"
+model7=pickle.load(open(filename,'rb'))
+filename="LR1.sav"
+model8=pickle.load(open(filename,'rb'))
+filename="LR2.sav"
+model9=pickle.load(open(filename,'rb'))
+filename="LR3.sav"
+model10=pickle.load(open(filename,'rb'))
+
+filename="KNN0.sav"
+model11=pickle.load(open(filename,'rb'))
+filename="KNN1.sav"
+model12=pickle.load(open(filename,'rb'))
+filename="KNN2.sav"
+model13=pickle.load(open(filename,'rb'))
+filename="KNN3.sav"
+model14=pickle.load(open(filename,'rb'))
+
+
 extra=loadtxt('not0.csv', delimiter=',')
 extra_result=loadtxt('not0_result.csv', delimiter=',')
 print(X_train.shape)
@@ -145,17 +221,16 @@ X_expand=np.append(X_train,extra,axis=0)
 Y_expand=np.append(Y_train0,extra_result,axis=0)
 print(X_expand.shape)
 print(Y_expand.shape)
-#MLP = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=0)
-MLP=MLPClassifier(solver='lbfgs', alpha=3e-5,hidden_layer_sizes=(120,), random_state=1) #LogisticRegression(random_state=0, C=1.0)
-MLP.fit(X_expand,Y_expand)
-filename="MLP0.sav"
-pickle.dump(MLP,open(filename,'wb'))
-MLP=pickle.load(open(filename,'rb'))
-prediction=MLP.predict(X_test)
+eclf1 = VotingClassifier(estimators=[ ('mlp', model3), ('lr', model7), ('knn', model11)], voting='soft', weights=[1,1,2])
+eclf1.fit(X_expand,Y_expand)
+filename="voting0.sav"
+pickle.dump(eclf1,open(filename,'wb'))
+eclf1=pickle.load(open(filename,'rb'))
+prediction=eclf1.predict(X_test)
 CM=confusion_matrix(Y_test0,prediction)
+print("voting0")
 print(CM)
 
-print("MLP1")
 extra=loadtxt('not1.csv', delimiter=',')
 extra_result=loadtxt('not1_result.csv', delimiter=',')
 print(X_train.shape)
@@ -163,18 +238,16 @@ X_expand=np.append(X_train,extra,axis=0)
 Y_expand=np.append(Y_train1,extra_result,axis=0)
 print(X_expand.shape)
 print(Y_expand.shape)
-
-MLP1=MLPClassifier(solver='lbfgs', alpha=3e-5,hidden_layer_sizes=(120,), random_state=1) #LogisticRegression(random_state=0, C=1.0)
-#MLP1 = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=5)
-MLP1.fit(X_expand,Y_expand)
-filename="MLP1.sav"
-pickle.dump(MLP1,open(filename,'wb'))
-MLP1=pickle.load(open(filename,'rb'))
-prediction=MLP1.predict(X_test)
+eclf2 = VotingClassifier(estimators=[ ('mlp', model4), ('lr', model8), ('knn', model12)], voting='soft', weights=[1,1,2])
+eclf2.fit(X_expand,Y_expand)
+filename="voting1.sav"
+pickle.dump(eclf2,open(filename,'wb'))
+eclf2=pickle.load(open(filename,'rb'))
+prediction=eclf2.predict(X_test)
 CM=confusion_matrix(Y_test1,prediction)
+print("voting1")
 print(CM)
 
-print("MLP2")
 extra=loadtxt('not2.csv', delimiter=',')
 extra_result=loadtxt('not2_result.csv', delimiter=',')
 print(X_train.shape)
@@ -182,34 +255,26 @@ X_expand=np.append(X_train,extra,axis=0)
 Y_expand=np.append(Y_train2,extra_result,axis=0)
 print(X_expand.shape)
 print(Y_expand.shape)
-
-#MLP2 = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=5)
-MLP2=MLPClassifier(solver='lbfgs', alpha=3e-5,hidden_layer_sizes=(120,), random_state=1) #LogisticRegression(random_state=0, C=1.0)
-MLP2.fit(X_expand,Y_expand)
-filename="MLP2.sav"
-pickle.dump(MLP2,open(filename,'wb'))
-MLP2=pickle.load(open(filename,'rb'))
-prediction=MLP2.predict(X_test)
+eclf3 = VotingClassifier(estimators=[ ('mlp', model5), ('lr', model9), ('knn', model13)], voting='soft', weights=[1,1,2])
+eclf3.fit(X_expand,Y_expand)
+filename="voting2.sav"
+pickle.dump(eclf3,open(filename,'wb'))
+eclf3=pickle.load(open(filename,'rb'))
+prediction=eclf3.predict(X_test)
 CM=confusion_matrix(Y_test2,prediction)
+print("voting2")
 print(CM)
 
-print("MLP3")
-'''
-extra=loadtxt('not3.csv', delimiter=',')
-extra_result=loadtxt('not3_result.csv', delimiter=',')
-print(X_train.shape)
-X_expand=np.append(X_train,extra,axis=0)
-Y_expand=np.append(Y_train3,extra_result,axis=0)
-print(X_expand.shape)
-print(Y_expand.shape)
-'''
-#
-MLP3=MLPClassifier(solver='lbfgs', alpha=3e-5,hidden_layer_sizes=(120,), random_state=1) #LogisticRegression(random_state=0, C=1.0)
-#MLP3 = RandomForestClassifier(n_jobs=200,max_depth=None, max_leaf_nodes=5, random_state=5)
-MLP3.fit(X_train,Y_train3)
-filename="MLP3.sav"
-pickle.dump(MLP3,open(filename,'wb'))
-MLP3=pickle.load(open(filename,'rb'))
-prediction=MLP3.predict(X_test)
+eclf4 = VotingClassifier(estimators=[ ('mlp', model6), ('lr', model10), ('knn', model14)], voting='soft', weights=[1,1,2])
+eclf4.fit(X_train,Y_train3)
+filename="voting3.sav"
+pickle.dump(eclf4,open(filename,'wb'))
+eclf4=pickle.load(open(filename,'rb'))
+prediction=eclf4.predict(X_test)
 CM=confusion_matrix(Y_test3,prediction)
+print("voting3")
 print(CM)
+
+
+
+
