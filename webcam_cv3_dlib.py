@@ -288,6 +288,14 @@ model17=pickle.load(open(filename,'rb'))
 filename="voting3.sav"
 model18=pickle.load(open(filename,'rb'))
 
+filename="svm0.sav"
+model19=pickle.load(open(filename,'rb'))
+filename="svm1.sav"
+model20=pickle.load(open(filename,'rb'))
+filename="svm2.sav"
+model21=pickle.load(open(filename,'rb'))
+filename="svm3.sav"
+model22=pickle.load(open(filename,'rb'))
 
 cascPath = "haarcascade_frontalface_default.xml"
 faceCascade = cv2.CascadeClassifier(cascPath)

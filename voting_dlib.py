@@ -213,13 +213,13 @@ model13=pickle.load(open(filename,'rb'))
 filename="KNN3.sav"
 model14=pickle.load(open(filename,'rb'))
 
-filename="KNN0.sav"
+filename="svm0.sav"
 model19=pickle.load(open(filename,'rb'))
-filename="KNN1.sav"
+filename="svm1.sav"
 model20=pickle.load(open(filename,'rb'))
-filename="KNN2.sav"
+filename="svm2.sav"
 model21=pickle.load(open(filename,'rb'))
-filename="KNN3.sav"
+filename="svm3.sav"
 model22=pickle.load(open(filename,'rb'))
 
 
