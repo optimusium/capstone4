@@ -597,7 +597,7 @@ while True:
         #cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (x + 6, y+h - 6), font, 1.0, (0, 0, 0), 1)
+        cv2.putText(frame, name, (x + 6, y+h - 6), font, 1.0, (128, 255, 255), 1)
         
         print(min(model11.kneighbors(img2_representation,return_distance=True)[0][0]))
             
