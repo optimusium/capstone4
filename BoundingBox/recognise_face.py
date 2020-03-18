@@ -13,16 +13,41 @@ import cv2
 import numpy as np
 import os
 import glob
+import argparse
+
+parser = argparse.ArgumentParser(description='This module recognizes faces with a named bounding box around the face.')
+parser.add_argument('--camera', type=int, help='Which camera to use.', 
+                    default=0)
+parser.add_argument('--width', type=int, help='Which frame width to use.', 
+                    default=1920)
+parser.add_argument('--hight', type=int, help='Which frame hight to use.', 
+                    default=1080)
+parser.add_argument('--xResize', type=int, help='How much to resize image(x).', 
+                    default=2)
+parser.add_argument('--yResize', type=int, help='How much to resize image(y).', 
+                    default=2)
+parser.add_argument('--upsample', type=int, help='Number of times to upsample the image looking for faces. Higher numbers find smaller faces.', 
+                    default=2)
+parser.add_argument('--model', type=str, help='Which face detection model to use.', 
+                    default='hog')
+parser.add_argument('--jitter', type=int, help='Number of times to re-sample the face when calculating encoding. Higher is more accurate, but slower.', 
+                    default=2)
+parser.add_argument('--tolerance', type=float, help='How much distance between faces to consider it a match. Lower is more strict.', 
+                    default=0.6)
+
+args = parser.parse_args()
+
 
 # Get a reference to webcam #0 (the default one)
-video_capture = cv2.VideoCapture(0)
+video_capture = cv2.VideoCapture(args.camera)
 
 # Increase the resolution of the video
-def make_1080p():
-    video_capture.set(3, 1920)
-    video_capture.set(4, 1080)
+def setResolution(width, hight):
+    """Set resolution of the video input"""
+    video_capture.set(3, width)
+    video_capture.set(4, hight)
 
-make_1080p()
+setResolution(args.width, args.hight)
 
 #make array of sample pictures with encodings
 known_face_encodings = []
@@ -60,7 +85,7 @@ while True:
     small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
     
     # Resize frame of video to 2 times the size for larger display
-    frame = cv2.resize(frame, (0,0), fx=2, fy=2) 
+    frame = cv2.resize(frame, (0,0), fx=args.xResize, fy=args.yResize) 
 
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     rgb_small_frame = small_frame[:, :, ::-1]
@@ -68,13 +93,13 @@ while True:
     # Only process every other frame of video to save time
     if process_this_frame:
         # Find all the faces and face encodings in the current frame of video
-        face_locations = face_recognition.face_locations(rgb_small_frame, number_of_times_to_upsample=2, model='hog') # For GPU, use model='cnn'
-        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations, num_jitters=2)
+        face_locations = face_recognition.face_locations(rgb_small_frame, number_of_times_to_upsample=args.upsample, model=args.model) # For GPU, can try model='cnn'
+        face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations, num_jitters=args.jitter)
 
         face_names = []
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.6) # Lower is more strict, default = 0.6
+            matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=args.tolerance) # Lower is more strict, default = 0.6
             name = "Unknown"
 
             # # If a match was found in known_face_encodings, just use the first one.
@@ -96,10 +121,10 @@ while True:
     # Display the results
     for (top, right, bottom, left), name in zip(face_locations, face_names):
         # Scale back up face locations by 2 times since the frame we detected in was scaled to 1/4 size
-        top *= 8
-        right *= 8
-        bottom *= 8
-        left *= 8
+        top *= 4*args.xResize
+        right *= 4*args.xResize
+        bottom *= 4*args.xResize
+        left *= 4*args.xResize
 
         # Draw a box around the face
         
