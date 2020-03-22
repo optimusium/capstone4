@@ -3,9 +3,11 @@ import sys
 import logging as log
 import datetime as dt
 from time import sleep
+
 import numpy as np
 from matplotlib import pyplot as plt
 
+debug=0
 '''
 from keras.preprocessing.image import ImageDataGenerator
 from keras.preprocessing.image import img_to_array
@@ -119,11 +121,11 @@ def image_process(imag,gamma):
     if 1:
         
         
-        grayplt(imag/255)
+        if debug==1: grayplt(imag/255)
         imag=adjust_gamma(imag,gamma)
-        grayplt(imag/255)
+        if debug==1: grayplt(imag/255)
         result = detector.detect_faces(imag)
-        print("rawimage",result)
+        if debug==1: print("rawimage",result)
         if result==[]: return False,imag
     
         keypoints = result[0]['keypoints']
@@ -131,7 +133,7 @@ def image_process(imag,gamma):
         turned=0
         while keypoints['right_eye'][1]-keypoints['left_eye'][1]>8:
             imag2 = ndimage.rotate(imag, 2, mode='nearest')
-            print("turned")
+            if debug==1: print("turned")
             turned=1
             result2 = detector.detect_faces(imag2)
             if result2==[]: break
@@ -140,7 +142,7 @@ def image_process(imag,gamma):
             keypoints = result[0]['keypoints']
         while keypoints['left_eye'][1]-keypoints['right_eye'][1]>8:
             imag2 = ndimage.rotate(imag, -2, mode='nearest')
-            print("turned")
+            if debug==1: print("turned")
             turned=1
             result2 = detector.detect_faces(imag2)
             if result2==[]: break
@@ -148,16 +150,16 @@ def image_process(imag,gamma):
             result=result2
             keypoints = result[0]['keypoints']
         if turned==1:
-            grayplt(imag/255)
+            if debug==1: grayplt(imag/255)
     
         # Result is an array with all the bounding boxes detected. We know that for 'ivan.jpg' there is only one.
         bounding_box = result[0]['box']
-        print("bounding_box",bounding_box)
+        if debug==1: print("bounding_box",bounding_box)
         if bounding_box[3]<45: return False,imag
         if bounding_box[2]<45: return False, imag
     
         keypoints = result[0]['keypoints']
-        print("keypoints",keypoints)   
+        if debug==1: print("keypoints",keypoints)   
    
         if keypoints=={}:return False,imag
         if 'left_eye' not in keypoints: return False,imag
@@ -186,9 +188,9 @@ def image_process(imag,gamma):
         bottom_length=bottom_bound-keypoints['nose'][1]        
         imag=imag[top_bound:bottom_bound, left_bound:right_bound]
                 
-            #grayplt(imag/255)
+            #if debug==1: grayplt(imag/255)
         #imag = cv2.resize(imag,(160,160), interpolation = cv2.INTER_CUBIC)
-        grayplt(imag/255)
+        if debug==1: grayplt(imag/255)
         imag=(imag-imag%16)
         #continue
     return True,imag
@@ -197,8 +199,8 @@ def image_process(imag,gamma):
 #import tensorflow as tf
 model = load_model('facenet/facenet_keras.h5')
 model.summary()
-print(model.inputs)
-print(model.outputs)
+if debug==1: print(model.inputs)
+if debug==1: print(model.outputs)
 
 model.load_weights("facenet/facenet_keras_weights.h5")
 '''
@@ -307,9 +309,11 @@ anterior = 0
 numm=-1
 
 prev=0
+changed=1
+static_count=0
 while True:
     if not video_capture.isOpened():
-        print('Unable to load camera.')
+        if debug==1: print('Unable to load camera.')
         sleep(5)
         pass
 
@@ -317,7 +321,9 @@ while True:
     ret, frame = video_capture.read()
     #cv2.imwrite("frame.jpg",frame)
     #sleep(0.25)
-
+    if changed==1:
+        cv2.imshow('Video', frame)
+        changed=0
     '''
     movement=0    
     
@@ -332,14 +338,14 @@ while True:
         histr=[]
         for i,col in enumerate(color):
             histr = moving_average( cv2.calcHist([frame],[i],None,[256],[0,256]) )
-            #print(histr)
+            #if debug==1: print(histr)
             #histr2 = moving_average( cv2.calcHist([prev_frame],[i],None,[256],[0,256]) )
-            #print(histr2)     
-            #print(histr-histr2)
+            #if debug==1: print(histr2)     
+            #if debug==1: print(histr-histr2)
             #raise
             #histr3 = histr-histr2 #moving_average( cv2.calcHist([frame-prev_frame],[i],None,[256],[0,256]) )
             #histr3/=histr+1
-            #print(histr3)
+            #if debug==1: print(histr3)
             #raise
             #plt.plot(histr,color = col)
             #plt.plot(histr2,color = col)
@@ -365,15 +371,15 @@ while True:
     '''
     
     
-    #grayplt(negative)
-    #grayplt(frame)
-    #grayplt(prev_frame)
+    #if debug==1: grayplt(negative)
+    #if debug==1: grayplt(frame)
+    #if debug==1: grayplt(prev_frame)
     prev_frame=frame
-    #print( np.size(negative))
-    #print( np.sum(negative>120)  )
+    #if debug==1: print( np.size(negative))
+    #if debug==1: print( np.sum(negative>120)  )
     #sleep(1
-    #print(frame)
-    #print(prev_frame)
+    #if debug==1: print(frame)
+    #if debug==1: print(prev_frame)
     #raise
 
 
@@ -385,29 +391,33 @@ while True:
         minNeighbors=5,
         minSize=(30, 30)
     )
+    #print(faces)
+    print(faces.count())
 
     # Draw a rectangle around the faces
     for (x, y, w, h) in faces:
         #resized = cv2.resize(frame[y:y+h,x:x+w], (160,160), interpolation = cv2.INTER_AREA)
-        #grayplt(resized/255)
+        #if debug==1: grayplt(resized/255)
         #numm+=1
         #saved=cv2.resize(frame[y:y+h,x:x+w], (160,160), interpolation = cv2.INTER_AREA)
         gamma=1
         #imgg=cv2.imread("./img/ad2.jpg")
         #imgg=adjust_gamma(imgg, gamma=0.8)
+        
+        #Full image: frame
         success,imag=image_process(cv2.cvtColor(frame[y:y+h,x:x+w], cv2.COLOR_BGR2RGB),gamma)   
         #success,imag=image_process(cv2.cvtColor(imgg, cv2.COLOR_BGR2RGB),gamma)   
         if success==False: continue
         #imag=frame[y:y+h,x:x+w]
         face_locations = face_recognition.face_locations(imag, number_of_times_to_upsample=2, model='hog') # For GPU, use model='cnn'
         face_encodings = face_recognition.face_encodings(imag, face_locations, num_jitters=2)
-        #print(face_locations)                
-        #print(face_encodings)        
+        #if debug==1: print(face_locations)                
+        #if debug==1: print(face_encodings)        
         if face_encodings==[]: continue             
         
         cv2.imwrite('saved.jpg',frame[y:y+h,x:x+w])
-        grayplt(imag/255)
-        print("image updated as saved.jpg")
+        if debug==1: grayplt(imag/255)
+        if debug==1: print("image updated as saved.jpg")
         resized=np.expand_dims(imag,axis=0)
         ######################
         
@@ -443,51 +453,51 @@ while True:
         result20=model21.predict(img2_representation)
         result21=model22.predict(img2_representation)
         
-        print(img2_representation.shape)
-        print("mlp")
-        print("francis",result2)
-        print("Yu Ka",result3)
-        print("boonping",result4)
-        print("not recognized",result5)
+        if debug==1: print(img2_representation.shape)
+        if debug==1: print("mlp")
+        if debug==1: print("francis",result2)
+        if debug==1: print("Yu Ka",result3)
+        if debug==1: print("boonping",result4)
+        if debug==1: print("not recognized",result5)
         
-        print("lr")
-        print("francis",result6)
-        print("Yu Ka",result7)
-        print("boonping",result8)
-        print("not recognized",result9)
+        if debug==1: print("lr")
+        if debug==1: print("francis",result6)
+        if debug==1: print("Yu Ka",result7)
+        if debug==1: print("boonping",result8)
+        if debug==1: print("not recognized",result9)
 
-        print("knn")
-        print("francis",result10)
-        print("Yu Ka",result11)
-        print("boonping",result12)
-        print("not recognized",result13)
+        if debug==1: print("knn")
+        if debug==1: print("francis",result10)
+        if debug==1: print("Yu Ka",result11)
+        if debug==1: print("boonping",result12)
+        if debug==1: print("not recognized",result13)
 
-        print("svm")
-        print("francis",result18)
-        print("Yu Ka",result19)
-        print("boonping",result20)
-        print("not recognized",result21)
+        if debug==1: print("svm")
+        if debug==1: print("francis",result18)
+        if debug==1: print("Yu Ka",result19)
+        if debug==1: print("boonping",result20)
+        if debug==1: print("not recognized",result21)
 
-        print("voting")
-        print("francis",result14)
-        print("Yu Ka",result15)
-        print("boonping",result16)
-        print("not recognized",result17)
+        if debug==1: print("voting")
+        if debug==1: print("francis",result14)
+        if debug==1: print("Yu Ka",result15)
+        if debug==1: print("boonping",result16)
+        if debug==1: print("not recognized",result17)
         
         '''
         cosine = findCosineDistance(img1_representation, img2_representation)
         euclidean = findEuclideanDistance(img1_representation, img2_representation)
         
         if cosine <= 0.02:
-           print("this is boonping")
+           if debug==1: print("this is boonping")
         else:
-           print("this is not boonping")
+           if debug==1: print("this is not boonping")
         '''
         
         
         prediction=model2.predict(img2_representation)
-        #print(np.argmax(prediction[0]))
-        #print(prediction)
+        #if debug==1: print(np.argmax(prediction[0]))
+        #if debug==1: print(prediction)
         
         fa=-1
         val=0
@@ -519,59 +529,59 @@ while True:
                     
         if val<0.55 and sel!=4: sel=0
         
-        print("\nResult with deep neural network")
+        if debug==1: print("\nResult with deep neural network")
         if sel==0: 
-            print("not recognized")
+            if debug==1: print("not recognized")
         elif sel==1: 
             if result14==1 and result15==0  and result16==0:
                 if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
-                    print("Not sure it is Francis")
+                    if debug==1: print("Not sure it is Francis")
                 else:
-                    print("Francis")
+                    if debug==1: print("Francis")
                     
             else:
-                print("not recognized")
+                if debug==1: print("not recognized")
         elif sel==2: 
             if result15==1 and result14==0  and result16==0:            
                 
                 if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:                    
-                    print("Not sure it is Yu Ka")
+                    if debug==1: print("Not sure it is Yu Ka")
                 else:
-                    print("Yu Ka")
+                    if debug==1: print("Yu Ka")
                 
             else:
-                print("not recognized")
+                if debug==1: print("not recognized")
                 
         elif sel==3: 
             if result16==1 and result15==0  and result14==0:
                 
                 if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
-                    print("Not sure it is Boon Ping")
+                    if debug==1: print("Not sure it is Boon Ping")
                 else:
-                    print("Boon Ping")
+                    if debug==1: print("Boon Ping")
                     name="Boon Ping"
                     
                 
                 
             else:
-                print("not recognized")
+                if debug==1: print("not recognized")
                 
         elif sel==4: 
-            print("not recognized")
+            if debug==1: print("not recognized")
         #cv2.imwrite('saved_%i_%i.jpg'%(sel,numm),saved)
-        print("\nResult with voting network only")    
+        if debug==1: print("\nResult with voting network only")    
         name="Not Recognized Person"
         if result14==1 and result15==0  and result16==0: # and model11.predict_proba(img2_representation)[1]>0.666:
             if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
-                print("Not sure it is Francis")
+                if debug==1: print("Not sure it is Francis")
             else:
-                print("Francis")
+                if debug==1: print("Francis")
                 name="Francis"
         elif result15==1 and result14==0  and result16==0: # and model12.predict_proba(img2_representation)[1]>0.666:            
             if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:                    
-                print("Not sure it is Yu Ka")
+                if debug==1: print("Not sure it is Yu Ka")
             else:
-                print("Yu Ka")
+                if debug==1: print("Yu Ka")
                 name="Yu Ka"
         elif result16==1 and result15==0  and result14==0: # and model13.predict_proba(img2_representation)[1]>0.666:
             
@@ -586,34 +596,39 @@ while True:
             cv2.putText(frame,'boonping', bottomLeftCornerOfText, font, fontScale,fontColor,lineType)
             '''
             if min(model11.kneighbors(img2_representation,return_distance=True)[0][0])>3.0:
-                print("Not sure it is Boon Ping")
+                if debug==1: print("Not sure it is Boon Ping")
             else:
-                print("Boon Ping")
+                if debug==1: print("Boon Ping")
                 name="Boon Ping"
         else:
-            print("Not recognized")
+            if debug==1: print("Not recognized")
             
         (top, right, bottom, left)=face_locations[0]
+        
+        #Full image: processing full frame
+        #unmask to get full frame: 
+        cv2.imwrite('saved_frame.jpg',frame)
+        
         #cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (x + 6, y+h - 6), font, 1.0, (128, 255, 255), 1)
-        
-        print(min(model11.kneighbors(img2_representation,return_distance=True)[0][0]))
+        cv2.putText(frame, name, (x + 6, y+h - 6), font, 1.0, (0, 0, 255), 1)
+        changed=1
+        if debug==1: print(min(model11.kneighbors(img2_representation,return_distance=True)[0][0]))
             
         
         '''
         if np.argmax(prediction[0])==1:
-           print("this is boonping")
+           if debug==1: print("this is boonping")
         else:
-           print("this is not boonping")
+           if debug==1: print("this is not boonping")
         ''' 
         
         #cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        sleep(1)
+        sleep(0.01)
         '''
         resized=np.expand_dims(resized,axis=0)/255
-        print(resized.shape)
+        if debug==1: print(resized.shape)
         
 
         
@@ -624,16 +639,16 @@ while True:
         fontScale              = 1
         fontColor              = (255,255,255)
         lineType               = 2
-        grayplt(resized[0])
-        print(np.argmax(predicts_img[0]))
-        print(predicts_img[0])
+        if debug==1: grayplt(resized[0])
+        if debug==1: print(np.argmax(predicts_img[0]))
+        if debug==1: print(predicts_img[0])
         
         image = load_img("frame7.jpg")
         resized2=np.expand_dims(image,axis=0)/255
         predicts_img    = modelGo.predict(resized2)
-        grayplt(resized2[0])
-        print(np.argmax(predicts_img[0]))
-        print(predicts_img[0])
+        if debug==1: grayplt(resized2[0])
+        if debug==1: print(np.argmax(predicts_img[0]))
+        if debug==1: print(predicts_img[0])
         
         cv2.putText(frame,'%s' % np.argmax(predicts_img), bottomLeftCornerOfText, font, fontScale,fontColor,lineType)
         '''
@@ -654,7 +669,19 @@ while True:
 
 
     # Display the resulting frame
-    cv2.imshow('Video', frame)
+    if changed==1:
+        cv2.imshow('Video', frame)
+        changed=0
+        static_count=0
+    else:
+        static_count+=1
+        if static_count>15:
+            cv2.imshow('Video', frame)
+            changed=0
+            static_count=0
+            
+    #print(faces)
+    grayplt(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -664,18 +691,18 @@ while True:
         image = np.expand_dims(image, axis=0)
 
         aug=ImageDataGenerator(rotation_range=20,zoom_range=0.15,width_shift_range=0.2,height_shift_range=0.2,shear_range=0.15,horizontal_flip=True,fill_mode="nearest")
-        print("[INFO] generating images...")
+        if debug==1: print("[INFO] generating images...")
         imageGen = aug.flow(image, batch_size=1, save_to_dir=".",save_prefix="image5", save_format="jpg")
         i=0
         for image in imageGen:
-            print(image)
+            if debug==1: print(image)
             i+=1
             if i==100: break
         '''
         break
 
     # Display the resulting frame
-    cv2.imshow('Video', frame)
+    #cv2.imshow('Video', frame)
 
 # When everything is done, release the capture
 video_capture.release()
