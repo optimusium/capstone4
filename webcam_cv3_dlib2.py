@@ -104,15 +104,54 @@ from sklearn.neural_network import MLPClassifier
 
 import face_recognition
 import threading
-
+import queue
 
 from mtcnn import MTCNN
 
 detector = MTCNN()
 
-def face_recog(imag,face_locations,face_encodings):
+def face_recog(imag,face_locations,face_encodings,que):
+    face_recog1(imag,face_locations,face_encodings,que)
+    if 1:
+        if 1:
+            print("Bbb")
+            face_encodings=[]
+            #que = queue.Queue()
+            #proc=multiprocessing.Process( target=face_recog, args=(imag,face_locations,face_encodings) )
+            proc=threading.Thread( target=face_recog1, args=(imag,face_locations,face_encodings,que) )
+            
+            try:
+                timtemp3=time()
+                proc.start()
+                #print("ccc")
+                sleep(0.001)
+                #print("time",time()-timtemp3)
+                proc.join(timeout=0)
+                #print("ddd")
+                #print(proc.isAlive())
+                while proc.isAlive():
+                    #print("aaa")
+                    timtemp=time()
+                    ret2, frame2 = video_capture.read()
+                    cv2.imshow('Video', frame2)
+                    #print(time()-timtemp)
+                    #sleep(0.01)
+                
+                #sleep(0.01)
+            except:
+                #print("qqq")
+                pass
+            '''
+            try:
+                face_encodings=que.get()
+            except:
+                pass
+            '''
+
+def face_recog1(imag,face_locations,face_encodings,que):
     face_encodings=face_recognition.face_encodings(imag, num_jitters=1)
-    print(face_encodings)
+    #print(face_encodings)
+    '''
     if face_encodings!=[]:
         with open('face_encode.csv', "w+") as ff:
             savetxt(ff, face_encodings, delimiter=',')
@@ -120,7 +159,8 @@ def face_recog(imag,face_locations,face_encodings):
         inf=open('face_encode.csv', "w+")
         inf.write("9999")
         inf.close()
-        
+    '''
+    que.put(face_encodings)    
     return face_encodings
 
 def moving_average(a, n=3) :
@@ -440,29 +480,41 @@ def run_model():
             #print("encoding time0:", encode_time2)
     
             #face_encodings = face_recognition.face_encodings(imag, face_locations, num_jitters=2)
-            #face_encodings = face_recognition.face_encodings(imag, face_locations, num_jitters=1)
+            face_encodings = face_recognition.face_encodings(imag, face_locations, num_jitters=1)
             
-            
+            '''
             print("Bbb")
             face_encodings=[]
+            que = queue.Queue()
             #proc=multiprocessing.Process( target=face_recog, args=(imag,face_locations,face_encodings) )
-            proc=threading.Thread( target=face_recog, args=(imag,face_locations,face_encodings) )
+            proc=threading.Thread( target=face_recog, args=(imag,face_locations,face_encodings,que) )
+            
             try:
-                
+                timtemp3=time()
                 proc.start()
                 print("ccc")
                 sleep(0.001)
+                print("time",time()-timtemp3)
                 proc.join(timeout=0)
                 print("ddd")
+                print(proc.isAlive())
+                while proc.isAlive():
+                    print("aaa")
+                    timtemp=time()
+                    ret2, frame2 = video_capture.read()
+                    cv2.imshow('Video', frame2)
+                    print(time()-timtemp)
+                    #sleep(0.01)
+                
                 #sleep(0.01)
             except:
                 print("qqq")
                 pass
-            while proc.is_alive():
-                print("aaa")
-                ret2, frame2 = video_capture.read()
-                cv2.imshow('Video', frame2)
-                sleep(0.01)
+            try:
+                face_encodings=que.get()
+            except:
+                pass
+
             
             #proc.close()
             onf=open('face_encode.csv', "r")
@@ -472,9 +524,9 @@ def run_model():
             else:
                 face_encodings = loadtxt('face_encode.csv', delimiter=',')
             onf.close()
-
+            '''
             
-            print(face_encodings)
+            #print(face_encodings)
             
             #face_encodings = face_recognition.face_encodings(imag, face_locations, num_jitters=1)
             encode_time=time()-encode1
@@ -492,8 +544,8 @@ def run_model():
             if debug==1: print("image updated as saved.jpg")
             resized=np.expand_dims(imag,axis=0)
     
-            #img2_representation=np.expand_dims(face_encodings[0],axis=0)
-            img2_representation=np.expand_dims(face_encodings,axis=0)
+            img2_representation=np.expand_dims(face_encodings[0],axis=0)
+            #img2_representation=np.expand_dims(face_encodings,axis=0)
             
             if debug==1:
                 result2=model3.predict(img2_representation)    
@@ -723,7 +775,7 @@ def run_model():
     
         #print(faces)
     
-        grayplt(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        #grayplt(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
