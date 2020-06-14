@@ -230,7 +230,8 @@ def findEuclideanDistance(source_representation, test_representation):
 
 
 
-def image_process(imag,gamma):    
+def image_process2(imag,gamma):
+    detector = MTCNN()    
     img_pointer=0
     if 1:
         if debug==1: grayplt(imag/255)
@@ -459,12 +460,12 @@ def run_model():
             #Full image: frame
     
             tim5=time()
-            success,imag=image_process(cv2.cvtColor(frame[y:y+h,x:x+w], cv2.COLOR_BGR2RGB),gamma)  
+            success,imag=image_process2(cv2.cvtColor(frame[y:y+h,x:x+w], cv2.COLOR_BGR2RGB),gamma)  
             tim6=time()
             tim=tim6-tim5
             print("preprocessing_time:",tim)
     
-            #success,imag=image_process(cv2.cvtColor(imgg, cv2.COLOR_BGR2RGB),gamma)   
+            #success,imag=image_process2(cv2.cvtColor(imgg, cv2.COLOR_BGR2RGB),gamma)   
     
             if success==False: continue
             imag = cv2.resize(imag, (0,0), fx=0.75, fy=0.75) 

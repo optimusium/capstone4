@@ -116,6 +116,7 @@ model.load_weights("facenet/facenet_keras_weights.h5")
 
 def image_process(images,gamma,ratioo,flip,blur):    
     img_pointer=0
+    path=".\\img\\"
     for img in images:
         
         imag=cv2.imread(path+img)

@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Apr 19 18:13:21 2020
+Created on Sat Feb 15 12:44:26 2020
 
-@author: User
+@author: boonping
 """
-import os,re
+
 import cv2
-import sys
+import os,sys
 import logging as log
 import datetime as dt
-
 from time import sleep
-from time import time
-
 import numpy as np
-
 from matplotlib import pyplot as plt
+import face_recognition
+'''
+from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import img_to_array
+from keras.preprocessing.image import load_img
+'''
+
 from tensorflow.keras.callbacks import ModelCheckpoint,CSVLogger,LearningRateScheduler
 from tensorflow.keras.models import Model
 from tensorflow.keras.models import load_model
@@ -29,38 +32,26 @@ from tensorflow.keras.layers import AveragePooling2D,MaxPooling2D,UpSampling2D
 from tensorflow.keras.layers import add,Lambda
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.utils import to_categorical,plot_model
-
+#from tensorflow.keras.datasets import cifar10
 from tensorflow.keras import optimizers
 from tensorflow.keras import backend
+from tensorflow.keras.models import model_from_json
 from tensorflow.keras.preprocessing.image import ImageDataGenerator,img_to_array,load_img
 import IPython
 from scipy import ndimage
 from scipy.ndimage.interpolation import shift
 from numpy import savetxt,loadtxt
-
 #savetxt('data.csv', data, delimiter=',')
-
 #data = loadtxt('data.csv', delimiter=',')
-
 import gc
 from skimage.transform import resize
 
-import pickle
-from sklearn.svm import SVC
-from sklearn.multiclass import OneVsRestClassifier
-from sklearn.decomposition import PCA
-from sklearn.metrics import confusion_matrix
-
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from sklearn.neural_network import MLPClassifier
-
-import face_recognition
-
 from mtcnn import MTCNN
 
-debug=0
-detector = MTCNN()
+def moving_average(a, n=3) :
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n
 
 def grayplt(img,title=''):
     '''
@@ -95,125 +86,36 @@ def adjust_gamma(image, gamma=1.0):
 	# apply gamma correction using the lookup table
 	return cv2.LUT(image, table)    
 
-import process_csv_dlib
 
-def face_recog(imag,face_locations,face_encodings,que):
-    face_recog1(imag,face_locations,face_encodings,que)
-    if 1:
-        if 1:
-            print("Bbb")
-            face_encodings=[]
-            #que = queue.Queue()
-            #proc=multiprocessing.Process( target=face_recog, args=(imag,face_locations,face_encodings) )
-            proc=threading.Thread( target=face_recog1, args=(imag,face_locations,face_encodings,que) )
-            
-            try:
-                timtemp3=time()
-                proc.start()
-                #print("ccc")
-                sleep(0.001)
-                #print("time",time()-timtemp3)
-                proc.join(timeout=0)
-                #print("ddd")
-                #print(proc.isAlive())
-                while proc.isAlive():
-                    #print("aaa")
-                    timtemp=time()
-                    ret2, frame2 = video_capture.read()
-                    cv2.imshow('Video', frame2)
-                    #print(time()-timtemp)
-                    #sleep(0.01)
-                
-                #sleep(0.01)
-            except:
-                #print("qqq")
-                pass
-            '''
-            try:
-                face_encodings=que.get()
-            except:
-                pass
-            '''
+detector = MTCNN()
+images=[]
+for i in range(1,124,1):
+    images.append("frame%i.jpg" % i)
+'''
+images = ['frame1.jpg','frame2.jpg','frame3.jpg','frame4.jpg','frame5.jpg','frame6.jpg','frame7.jpg','frame8.jpg','frame9.jpg',\
+          'frame10.jpg','frame11.jpg','frame12.jpg','frame13.jpg','frame14.jpg','frame15.jpg','frame16.jpg','frame17.jpg','frame18.jpg','frame19.jpg',\
+          'frame20.jpg','frame21.jpg','frame22.jpg','frame23.jpg','frame24.jpg','frame25.jpg','frame26.jpg','frame27.jpg','frame28.jpg','frame29.jpg','frame30.jpg','frame31.jpg','frame32.jpg','frame33.jpg','frame34.jpg','frame35.jpg'\
+          ]
+'''
+#images = ['frame1.jpg','frame2.jpg','frame3.jpg','frame4.jpg','frame5.jpg','frame6.jpg','frame7.jpg','frame8.jpg','frame9.jpg','frame10.jpg']
+#images = ['frame37.jpg','frame38.jpg','frame39.jpg','frame40.jpg','frame41.jpg','frame42.jpg','frame43.jpg']
+#images = ['frame56.jpg','frame57.jpg','frame58.jpg','frame59.jpg','frame60.jpg','frame61.jpg']
+print("Type in the image frame number which you want to train. It is now saved in img/ folder")
+Val=input()
 
-def face_recog1(imag,face_locations,face_encodings,que):
-    face_encodings=face_recognition.face_encodings(imag, num_jitters=1)
-    #print(face_encodings)
-    '''
-    if face_encodings!=[]:
-        with open('face_encode.csv', "w+") as ff:
-            savetxt(ff, face_encodings, delimiter=',')
-    else:
-        inf=open('face_encode.csv', "w+")
-        inf.write("9999")
-        inf.close()
-    '''
-    que.put(face_encodings)    
-    return face_encodings
+images = ['frame%s.jpg' % Val]
+path=".\\img\\"
+path2=".\\img2\\"
 
-def moving_average(a, n=3) :
-    ret = np.cumsum(a, dtype=float)
-    ret[n:] = ret[n:] - ret[:-n]
-    return ret[n - 1:] / n
+'''
+model = load_model('facenet/facenet_keras.h5')
+model.summary()
+print(model.inputs)
+print(model.outputs)
 
-def grayplt(img,title=''):
-    fig,ax = plt.subplots(1)
-    ax.set_aspect('equal')
-
-    if np.size(img.shape) == 3:
-        #ax.imshow(img[:,:,0],cmap='hot',vmin=0,vmax=1)
-        ax.imshow(img,vmin=0,vmax=1)
-    else:
-        ax.imshow(img,cmap='hot',vmin=0,vmax=1)
-    plt.show()
-
-def adjust_gamma(image, gamma=1.0):
-	# build a lookup table mapping the pixel values [0, 255] to
-	# their adjusted gamma values
-
-	invGamma = 1.0 / gamma
-	table = np.array([((i / 255.0) ** invGamma) * 255 for i in np.arange(0, 256)]).astype("uint8")
-
-	# apply gamma correction using the lookup table
-
-	return cv2.LUT(image, table)    
-
-def preprocess_image(img):
-    imag=cv2.imread(img)
-    res = cv2.resize(imag,(160, 160), interpolation = cv2.INTER_CUBIC)
-    res=np.expand_dims(res,axis=0)
-    return res
-
-
-
-def findCosineDistance(source_representation, test_representation):
-
-    a = np.matmul(np.transpose(source_representation), test_representation)
-
-    b = np.sum(np.multiply(source_representation, source_representation))
-
-    c = np.sum(np.multiply(test_representation, test_representation))
-
-    return 1 - (a / (np.sqrt(b) * np.sqrt(c)))
-
- 
-
-def l2_normalize(x, axis=-1, epsilon=1e-10):
-    output = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True), epsilon))
-    return output
-
- 
-
-def findEuclideanDistance(source_representation, test_representation):
-
-    euclidean_distance = source_representation - test_representation
-
-    euclidean_distance = np.sum(np.multiply(euclidean_distance, euclidean_distance))
-
-    euclidean_distance = np.sqrt(euclidean_distance)
-
-    #euclidean_distance = l2_normalize(euclidean_distance )
-
-    return euclidean_distance
+model.load_weights("facenet/facenet_keras_weights.h5")
+'''
+#os.popen("del imgall*")
 
 def image_process(images,gamma,ratioo,flip,blur):    
     img_pointer=0
@@ -670,148 +572,40 @@ def image_process(images,gamma,ratioo,flip,blur):
         #raise
         
 
-def image_process2(imag,gamma):  
-    
-    img_pointer=0
-    if 1:
-        if debug==1: grayplt(imag/255)
-        imag=adjust_gamma(imag,gamma)
-        if debug==1: grayplt(imag/255)
-        result = detector.detect_faces(imag)
-        if debug==1: print("rawimage",result)
-        if result==[]: return False,imag
-        keypoints = result[0]['keypoints']
-        turned=0
+image_process(images,1.0,0.8,0,0)
+image_process(images,1.2,0.8,0,0)
+image_process(images,0.8,0.8,0,0)
 
-        while keypoints['right_eye'][1]-keypoints['left_eye'][1]>8:
-            imag2 = ndimage.rotate(imag, 2, mode='nearest')
-            if debug==1: print("turned")
-            turned=1
-            result2 = detector.detect_faces(imag2)
-            if result2==[]: break
-            imag=imag2
-            result=result2
-            keypoints = result[0]['keypoints']
 
-        while keypoints['left_eye'][1]-keypoints['right_eye'][1]>8:
-            imag2 = ndimage.rotate(imag, -2, mode='nearest')
-            if debug==1: print("turned")
-            turned=1
-            result2 = detector.detect_faces(imag2)
-            if result2==[]: break
-            imag=imag2
-            result=result2
-            keypoints = result[0]['keypoints']
+image_process(images,1.0,0.8,1,0)
+'''
+image_process(images,1.2,0.8,1,0)
+image_process(images,0.8,0.8,1,0)
 
-        if turned==1:
-            if debug==1: grayplt(imag/255)
+image_process(images,1.0,0.8,0,1)
+image_process(images,1.2,0.8,0,1)
+image_process(images,0.8,0.8,0,1)
 
-        # Result is an array with all the bounding boxes detected. We know that for 'ivan.jpg' there is only one.
+image_process(images,1.0,0.8,1,1)
+image_process(images,1.2,0.8,1,1)
+image_process(images,0.8,0.8,1,1)
 
-        bounding_box = result[0]['box']
+image_process(images,1.0,0.8,0,2)
+image_process(images,1.2,0.8,0,2)
+image_process(images,0.8,0.8,0,2)
 
-        if debug==1: print("bounding_box",bounding_box)
-        if bounding_box[3]<45: return False,imag
-        if bounding_box[2]<45: return False, imag
+image_process(images,1.0,0.8,1,2)
+image_process(images,1.2,0.8,1,2)
+image_process(images,0.8,0.8,1,2)
 
-        if debug==1: print("keypoints",keypoints)   
+image_process(images,1.0,0.8,0,3)
+image_process(images,1.2,0.8,0,3)
+image_process(images,0.8,0.8,0,3)
 
-        if keypoints=={}:return False,imag
-
-        if 'left_eye' not in keypoints: return False,imag
-        if 'right_eye' not in keypoints: return False,imag
-        if 'mouth_left' not in keypoints: return False,imag
-        if 'mouth_right' not in keypoints: return False,imag
-        if 'nose' not in keypoints: return False,imag
-
-        if result[0]['confidence']<0.95: return False,imag
-
-        left_bound=int( bounding_box[0]) #+(keypoints['left_eye'][0]-bounding_box[0])/3 )
-        right_bound=int( bounding_box[0]+bounding_box[2]) #-(bounding_box[0]+bounding_box[2]-keypoints['right_eye'][0])/3 )
-        top_bound=int( bounding_box[1]) #+(min(keypoints['right_eye'][1],keypoints['left_eye'][1])-bounding_box[1])/3 )
-        bottom_bound=int( bounding_box[1]+bounding_box[3]) #-(bounding_box[1]+bounding_box[3]-max(keypoints['mouth_right'][1],keypoints['mouth_left'][1]))/3 )
-        
-
-        '''
-
-        left_length=keypoints['nose'][0]-bounding_box[0]
-
-        right_length=bounding_box[2]-keypoints['nose'][0]
-
-        top_length=keypoints['nose'][1]-bounding_box[1]
-
-        bottom_length=bounding_box[3]-keypoints['nose'][1]
-
-        imag=imag[ bounding_box[1]:bounding_box[1]+bounding_box[3] , bounding_box[0]:bounding_box[0]+bounding_box[2] ]
-
-        '''
-
-        left_length=keypoints['nose'][0]-left_bound
-        right_length=right_bound-keypoints['nose'][0]
-        top_length=keypoints['nose'][1]-top_bound
-        bottom_length=bottom_bound-keypoints['nose'][1]        
-        imag=imag[top_bound:bottom_bound, left_bound:right_bound]
-
-        if debug==1: grayplt(imag/255)
-
-        imag=(imag-imag%16)
-        #continue
-    return True,imag
-
-def execfile(pyfile):
-    with open(pyfile) as f:
-        code = compile(f.read(), pyfile, 'exec')
-        exec(code)
-    
-    
-def select_operation(cmd):
-    if cmd==1: #application
-        execfile("webcam_cv3_dlib2.py")
-        #raise
-    elif cmd==2: #full training
-        execfile("facenet_predict6.py")
-        execfile("knn_dlib.py")
-        execfile("logistic_regression_dlib.py")
-        execfile("mlp_dlib.py")
-        execfile("svm_dlib.py")
-        execfile("voting_dlib.py")
-        #raise
-    elif cmd==3: #capture image
-        execfile("webcam_cv3_capture.py")
-    elif cmd==4: #save image
-        lookup=open("lookup.csv","r")
-        lines=lookup.readlines()
-        buf=0
-        last=""
-        for line in lines:
-            if line.find(",")==-1: continue
-            buf=eval( re.split(",",line)[0] )+1
-        print(buf)
-        lookup.close()
-        os.popen("copy frame.jpg img\\frame%i.jpg" % buf)
-        lookup2=open("lookup.csv","a+")
-        print("Press 1 for Francis")
-        print("Press 2 for Yu Ka")
-        print("Press 3 for Boonping")
-        print("Press 0 for Others")
-        Val=input()
-        lookup2.write("%i,%s\n"%(buf,Val))
-        lookup2.close()
-        print("your picture is saved as frame%s.jpg in img/ folder" % (buf) )
-    elif cmd==5: #partial training
-        execfile("facenet_predict6_partial.py")
-        
-        
-        
-        
-        
-if __name__=="__main__":
-    while 1:
-        print("Press 1 for Application")
-        print("Press 2 for Training")
-        print("Press 3 for Image Capturing")
-        print("Press 4 for Saving Captured Image")
-        print("Press 5 for Partial Training")
-        inp=eval(input())
-        
-        select_operation(inp)
+image_process(images,1.0,0.8,1,3)
+image_process(images,1.2,0.8,1,3)
+image_process(images,0.8,0.8,1,3)
+'''
+#image_process(images,1.5)
+#image_process(images,1.2)
+#image_process(images,0.8)
