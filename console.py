@@ -71,17 +71,17 @@ def select_operation(cmd):
         execfile("webcam_cv3_dlib2.py")
         #raise
     elif cmd==2: #full training
-        execfile("facenet_predict6.py")
-        execfile("knn_dlib.py")
+        execfile("facenet_predict6.py") #pre-process all images and encode the images
+        execfile("knn_dlib.py") #Running classification
         execfile("logistic_regression_dlib.py")
         execfile("mlp_dlib.py")
         execfile("svm_dlib.py")
-        execfile("voting_dlib.py")
+        execfile("voting_dlib.py") #voting
         #raise
     elif cmd==3: #capture image
-        execfile("webcam_cv3_capture.py")
+        execfile("webcam_cv3_capture.py") #after capture image, user can review frame.jpg then go to step 4.
     elif cmd==4: #save image
-        lookup=open("lookup.csv","r")
+        lookup=open("lookup.csv","r") #this is where the image are tagged with number label
         lines=lookup.readlines()
         buf=0
         last=""
@@ -98,7 +98,8 @@ def select_operation(cmd):
         print("Press 0 for Others")
         Val=input()
         lookup2.write("%i,%s\n"%(buf,Val))
-        lookup2.close()
+        lookup2.close() #after forming lookup table based on user input, save lookup.csv
+        
         
         
         
