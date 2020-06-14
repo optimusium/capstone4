@@ -778,7 +778,8 @@ def select_operation(cmd):
         #raise
     elif cmd==3: #capture image
         execfile("webcam_cv3_capture.py")
-    elif cmd==4: #save image
+        #after review frame.jpg at working folder, go to step 4
+    elif cmd==4: #save image which you captured in step 3
         lookup=open("lookup.csv","r")
         lines=lookup.readlines()
         buf=0
@@ -799,6 +800,7 @@ def select_operation(cmd):
         lookup2.close()
         print("your picture is saved as frame%s.jpg in img/ folder" % (buf) )
     elif cmd==5: #partial training
+        #key in your frame number generated in step 4
         execfile("facenet_predict6_partial.py")
         
         
