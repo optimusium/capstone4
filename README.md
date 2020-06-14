@@ -8,7 +8,7 @@ pip install https://pypi.python.org/packages/da/06/bd3e241c4eb0a662914b3b4875fc5
 
 pip install face_recognition
 
-If you are end user, run console.py
+If you are end user, run console.py (refer to select operation function)
 If you need to run manually, follow the subsequent steps:
 
 
