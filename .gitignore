@@ -1,2 +1,5 @@
 
 .idea/*
+backend_service/alert_service.yaml
+backend_service/logs/*.log
+backend_service/.idea/

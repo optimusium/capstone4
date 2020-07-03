@@ -1,0 +1,22 @@
+# Setup anaconda environment ml1p13
+
+1. Install flask
+conda install flask
+
+2. Copy alert_service.yaml to backend_service folder
+
+# Start alert service
+1. Start console and activate ml1p13 environment
+
+2. Run command
+start_alert_service.bat
+
+3. check backend_service/logs/alert_service.log file
+
+# Call alert service API
+1. create logs folder for storing logs
+
+2. Invoke corresponding api at AlertClient.py
+
+3. check logs/alert_client.log file
+
