@@ -1,5 +1,7 @@
 import base64
 import json
+import cv2
+import numpy as np
 from os import path
 
 import requests
@@ -32,6 +34,7 @@ class Email_Msg(dict):
         dict.__init__(self, alert_type=alert_type, subject_message=subject_message,
                       body_message=body_message, total_att_files=total_att_files,
                       att_files=current_att_files)
+
 
 def _url(path):
     return 'http://127.0.0.1:4980' + path
@@ -88,6 +91,45 @@ def send_email_with_files(email_content, subject_message, alert_type='Notice',
                       att_file_names, att_file_data_list)
 
 
+def test_send_email_with_images(email_content, subject_message, alert_type='Notice',
+                                attachment_filepath_list=[]):
+    if len(attachment_filepath_list) == 0:
+        return send_email(email_content, subject_message, alert_type)
+
+    image_data_list = []
+
+    for att_file_path in attachment_filepath_list:
+        _, att_filename = path.split(att_file_path)
+        image_bytes = read_file_binary(att_file_path)
+        image_np_array = np.asarray(bytearray(image_bytes), dtype=np.uint8)
+        image_data = cv2.imdecode(image_np_array, cv2.IMREAD_COLOR)
+        image_data_list.append(image_data)
+
+    return send_email_with_images(email_content, subject_message, alert_type,
+                                  image_name_prefix="unknown_", image_list=image_data_list)
+
+
+# API: Send email with images
+def send_email_with_images(email_content, subject_message, alert_type='Notice',
+                           image_name_prefix='image_', image_list=[]):
+    if len(image_list) == 0:
+        return send_email(email_content, subject_message, alert_type)
+
+    att_file_names = []
+    att_file_data_list = []
+    att_file_index = 0
+
+    for image in image_list:
+        att_file_index = att_file_index + 1
+        is_success, im_buf_arr = cv2.imencode(".jpg", image)
+        att_file_data = im_buf_arr.tobytes()
+        att_file_names.append(f"{image_name_prefix}{att_file_index}.jpg")
+        att_file_data_list.append(att_file_data)
+
+    return send_email(email_content, subject_message, alert_type,
+                      att_file_names, att_file_data_list)
+
+
 # API: Send email with / without attachment files
 def send_email(email_content, subject_message, alert_type='Notice',
                attachment_filenames=[], attachment_files_data=[]):
@@ -111,7 +153,7 @@ def send_email(email_content, subject_message, alert_type='Notice',
                               body_message=email_content, att_files=att_files)
 
     if logging.getLogger().isEnabledFor(logging.DEBUG):
-        email_json = json.dumps(email_msg_obj, default=lambda o:o.__dict__, indent=4)
+        email_json = json.dumps(email_msg_obj, default=lambda o: o.__dict__, indent=4)
         logging.debug('email_json: {}'.format(email_json))
 
     response = requests.post(_url('/email'), json=email_msg_obj)
@@ -129,8 +171,10 @@ if __name__ == '__main__':
     # send_sms("test sms")
 
     # Check email API (without attachments)
-    #send_email('Test sending mail.', 'Test email', 'Alert')
+    # send_email('Test sending mail.', 'Test email', 'Alert')
 
     # send email API (with attachements)
-    send_email_with_files('Test sending mail.', 'Test email', 'Alert',
-                          ['img/test1.png', 'img/test2.png', 'img/test2.jpg'])
+    # send_email_with_files('Test sending mail.', 'Test email', 'Alert',
+    #                       ['img/test1.png', 'img/test2.png', 'img/test2.jpg'])
+    test_send_email_with_images('Test sending mail with images.', 'Test email with images', 'Alert',
+                                ['img/test1.png', 'img/test2.png', 'img/test2.jpg'])
