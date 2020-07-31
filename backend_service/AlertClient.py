@@ -53,14 +53,18 @@ def check_service(api_function_name, api_function):
 
 # API: Send SMS message
 def send_sms(sms_message, target_phone='empty'):
-    response = requests.post(_url('/sms'), json={
-        'sms_message': sms_message,
-        'target_phone': target_phone
-    })
-
-    resp_message = str(response.json())
-    sms_results = not ('Failed to send sms' in resp_message)
-    logging.info("send_sms Result: {}, details: {}'".format(sms_results, resp_message))
+    try:
+        response = requests.post(_url('/sms'), json={
+            'sms_message': sms_message,
+            'target_phone': target_phone
+        })
+    
+        resp_message = str(response.json())
+        sms_results = not ('Failed to send sms' in resp_message)
+        logging.info("send_sms Result: {}, details: {}'".format(sms_results, resp_message))
+    except Exception as exp:
+        logging.error("send_sms error", exp)
+        sms_results = False
 
     return sms_results
 
@@ -133,34 +137,38 @@ def send_email_with_images(email_content, subject_message, alert_type='Notice',
 # API: Send email with / without attachment files
 def send_email(email_content, subject_message, alert_type='Notice',
                attachment_filenames=[], attachment_files_data=[]):
-    att_files = []
-    if 0 < len(attachment_filenames) == len(attachment_files_data) > 0:
-        logging.info('Add {} attachment files'.format(len(attachment_filenames)))
-        for i in range(len(attachment_filenames)):
-            att_file_name = attachment_filenames[i]
-            att_file_data = base64.b64encode(attachment_files_data[i]).decode('ascii')
-            email_att_file = Email_Att(file_name=att_file_name, file_data=att_file_data)
-            att_files.append(email_att_file)
-    else:
-        if len(attachment_filenames) == 0:
-            logging.info('No attachment file')
+    try:
+        att_files = []
+        if 0 < len(attachment_filenames) == len(attachment_files_data) > 0:
+            logging.info('Add {} attachment files'.format(len(attachment_filenames)))
+            for i in range(len(attachment_filenames)):
+                att_file_name = attachment_filenames[i]
+                att_file_data = base64.b64encode(attachment_files_data[i]).decode('ascii')
+                email_att_file = Email_Att(file_name=att_file_name, file_data=att_file_data)
+                att_files.append(email_att_file)
         else:
-            logging.info('Error in attachment files parameter (names={}, data={})'.format(
-                len(attachment_filenames), len(attachment_files_data)
-            ))
-
-    email_msg_obj = Email_Msg(alert_type=alert_type, subject_message=subject_message,
-                              body_message=email_content, att_files=att_files)
-
-    if logging.getLogger().isEnabledFor(logging.DEBUG):
-        email_json = json.dumps(email_msg_obj, default=lambda o: o.__dict__, indent=4)
-        logging.debug('email_json: {}'.format(email_json))
-
-    response = requests.post(_url('/email'), json=email_msg_obj)
-    resp_message = str(response.json())
-    email_results = not ('Failed to send email' in resp_message)
-    logging.info("send_email Result: {}, details: {}'".format(email_results, resp_message))
-
+            if len(attachment_filenames) == 0:
+                logging.info('No attachment file')
+            else:
+                logging.info('Error in attachment files parameter (names={}, data={})'.format(
+                    len(attachment_filenames), len(attachment_files_data)
+                ))
+    
+        email_msg_obj = Email_Msg(alert_type=alert_type, subject_message=subject_message,
+                                  body_message=email_content, att_files=att_files)
+    
+        if logging.getLogger().isEnabledFor(logging.DEBUG):
+            email_json = json.dumps(email_msg_obj, default=lambda o: o.__dict__, indent=4)
+            logging.debug('email_json: {}'.format(email_json))
+    
+        response = requests.post(_url('/email'), json=email_msg_obj)
+        resp_message = str(response.json())
+        email_results = not ('Failed to send email' in resp_message)
+        logging.info("send_email Result: {}, details: {}'".format(email_results, resp_message))
+    except Exception as exp:
+        logging.error("send_email error", exp)
+        email_results = False
+        
     return email_results
 
 
