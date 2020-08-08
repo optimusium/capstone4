@@ -62,6 +62,12 @@ def monitor_access():
             if not intrusion_found:
                 log.debug("No finding")
                 cv2.imshow('Video', frame)
+                
+                sleep(0.25)
+                
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            
                 continue
                 
             log.warning("Intrusion found!")
