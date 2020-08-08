@@ -48,11 +48,12 @@ while True:
     if valueDict.get(0) is not None:
         if valueDict[0] / fgMask.size < 0.98:
             # print("trigger========================", datetime.now())
-            currentTime = datetime.now()
-            timeDiff = currentTime - lastTriggerTime
-            if timeDiff.seconds > 1:
-                lastTriggerTime = datetime.now()
-                AlertClient.inform_intruder_status(True)
+            AlertClient.inform_intruder_status(True)
+            # currentTime = datetime.now()
+            # timeDiff = currentTime - lastTriggerTime
+            # if timeDiff.seconds > 1:
+            #     lastTriggerTime = datetime.now()
+            #     AlertClient.inform_intruder_status(True)
             #else:
                 # print("trigger ignored since it is within 1s compare to last one", timeDiff.microseconds)
 
