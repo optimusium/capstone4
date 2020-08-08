@@ -10,9 +10,9 @@ from email.mime.text import MIMEText
 from flask import Flask, jsonify, g, request
 from twilio.rest import Client
 import yaml
+import threading, queue
 
 app = Flask(__name__)
-
 
 def init_config():
     with open("alert_service.yaml", "r") as yaml_config:
@@ -23,6 +23,8 @@ def init_config():
 def get_app_config():
     return app.config['alert_service_config']
 
+def get_intruder_status():
+    return app.config['intruder_status_queue']
 
 def setup_sms_client():
     config = get_app_config()
@@ -45,6 +47,10 @@ def api_list():
         {
             "id": "email",
             "description": "Email service"
+        },
+        {
+            "id": "intruder",
+            "description": "Intruder status service"
         }
     ]
 
@@ -130,6 +136,44 @@ def email_api():
 
     return jsonify({"response_message": resp_message})
 
+@app.route('/report_intruder', methods=['POST'])
+def inform_intruder_api():
+    try:
+        status_queue = get_intruder_status()
+        intruder_status = request.json['intruder_status']
+
+        intruder_detected = (intruder_status is not None) and (intruder_status.strip().lower() == 'true')
+        logging.info(f"Received intruder status: {intruder_detected} with message: {intruder_status}")
+
+        if intruder_detected:
+            status_queue.put("1")
+
+        resp_message = str("success")
+    except Exception:
+        resp_message = 'Failed to put status'
+        logging.error("Failed to put status", exc_info=True)
+
+    return jsonify({"response_message": resp_message})
+
+@app.route('/query_intruder', methods=['POST'])
+def query_intruder_api():
+    try:
+        status_queue = get_intruder_status()
+        intruder_detected = False
+
+        while not status_queue.empty():
+            intruder_detected = True
+            status_queue.get()
+
+        logging.info(f"Query intruder status: {intruder_detected}")
+
+        resp_message = str(intruder_detected)
+
+    except Exception:
+        resp_message = 'Failed to query status'
+        logging.error("Failed to query status", exc_info=True)
+
+    return jsonify({"response_message": resp_message})
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG,
@@ -140,4 +184,5 @@ if __name__ == '__main__':
                         ])
     app.logger.info("Starting backend_service")
     app.config['alert_service_config'] = init_config()
+    app.config['intruder_status_queue'] = queue.Queue(maxsize=10)
     app.run(host='127.0.0.1', port=4980)
