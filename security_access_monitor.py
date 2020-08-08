@@ -12,10 +12,10 @@ from time import time
 from datetime import datetime
 import argparse
 
-from IntruderDetection.IntruderDetection_API import IntrusionDetector
 from face_recognition_api.webcam_cv3_dlib2_api import FaceRecognizer
 from backend_service.AlertClient import send_email_with_images as send_email
 from backend_service.AlertClient import send_sms
+from backend_service.AlertClient import query_intruder_status
 
 
 def monitor_access():
@@ -32,7 +32,6 @@ def monitor_access():
         parser.add_argument('--phone', type=str, help='sms_target_phone', default='0')
         args = parser.parse_args()
         
-        intruder_detector = IntrusionDetector()
         face_recognizer = FaceRecognizer()
         sms_phone = args.phone
         
@@ -58,13 +57,11 @@ def monitor_access():
             # Capture frame-by-frame
             ret, frame = video_capture.read()
         
-            intrusion_found, fgMask = intruder_detector.perform_intrusion_detection(frame)
+            intrusion_found = query_intruder_status()
     
             if not intrusion_found:
                 log.debug("No finding")
-                
                 cv2.imshow('Video', frame)
-                cv2.imshow('FG Mask', fgMask)
                 continue
                 
             log.warning("Intrusion found!")
@@ -162,7 +159,6 @@ def monitor_access():
                 log.debug("face show time: {}".format(time_spent))
         
             # Display the resulting frame
-            cv2.imshow('FG Mask', fgMask)
                         
             if changed==1:
                 tim7=time()
