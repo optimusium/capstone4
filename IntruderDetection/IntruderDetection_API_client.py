@@ -9,13 +9,14 @@ import cv2 as cv
 import logging as log
 from time import sleep
 import argparse
+from datetime import datetime
 
 from IntruderDetection.IntruderDetection_API import IntrusionDetector
 
 log.basicConfig(level=log.DEBUG,
                 format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
                 handlers=[
-                    log.FileHandler("logs/intrusion_detect_client.log"),
+                    log.FileHandler("./logs/intrusion_detect_client.log"),
                     log.StreamHandler()
                 ])
 
@@ -49,7 +50,7 @@ def detect_intrusion():
             intrusion_found, fgMask = detector.perform_intrusion_detection(frame)
     
             if intrusion_found:
-                log.warning("Intrusion found!")
+                log.warning("Intrusion found!" + str(datetime.now()))
             else:
                 log.debug("No finding")
                 

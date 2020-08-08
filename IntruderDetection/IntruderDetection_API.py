@@ -18,7 +18,7 @@ log.basicConfig(level=log.DEBUG,
 
 class IntrusionDetector(object):
     
-    def __init__(self, algo="KNN", threshold=0.98):
+    def __init__(self, algo="KNN", threshold=0.93):
         if algo == 'MOG2':
             self.backSub = cv.createBackgroundSubtractorMOG2()
         else:
