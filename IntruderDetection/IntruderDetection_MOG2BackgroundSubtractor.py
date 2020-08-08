@@ -8,6 +8,9 @@ Created on Mon Jan  6 13:03:28 2020
 from __future__ import print_function
 import cv2 as cv
 import argparse
+from datetime import datetime
+
+
 parser = argparse.ArgumentParser(description='This program shows how to use background subtraction methods provided by \
                                               OpenCV. You can process both videos and images.')
 parser.add_argument('--input', type=str, help='Path to a video or a sequence of image.', default='vtest.avi')
@@ -40,8 +43,8 @@ while True:
     #print("valueDict:", valueDict)
 
     if valueDict.get(0) is not None:
-        if valueDict[0] / fgMask.size < 0.98:
-            print("trigger========================")
+        if valueDict[0] / fgMask.size < 0.93:
+            print("trigger========================", datetime.now())
 
     #cv.rectangle(frame, (10, 2), (100,20), (255,255,255), -1)
     cv.rectangle(frame, None, None, (255, 255, 255), -1)
