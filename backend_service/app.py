@@ -146,7 +146,7 @@ def inform_intruder_api():
         intruder_detected = (intruder_status is not None) and (intruder_status.strip().lower() == 'true')
         logging.info(f"Received intruder status: {intruder_detected} with message: {intruder_status}")
 
-        if intruder_detected and not status_queue.empty():
+        if intruder_detected and status_queue.empty():
             status_queue.put("1")
 
         resp_message = str("success")
