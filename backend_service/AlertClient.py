@@ -69,7 +69,7 @@ def inform_intruder_status(intruder_detected=True):
 
     return inform_results
 
-# API: Query Intruder status message
+# API: Query Intruder status 1
 def query_intruder_status():
     response = requests.post(_url('/query_intruder'), json={
         'intruder_status': 'check',
@@ -77,12 +77,15 @@ def query_intruder_status():
 
     resp_message = str(response.json())
     query_results = not ('Failed to query status' in resp_message)
-    logging.info("query_intruder_status Result: {}, details: {}'".format(query_results, resp_message))
 
-    if 'success' in resp_message:
-        return True
+    if 'true' in resp_message.strip().lower():
+        instruder_detected = True
     else:
-        return False
+        instruder_detected = False
+
+    logging.info("query_intruder_status (status:{}), Result: {}, details: {}'".format(instruder_detected, query_results, resp_message))
+
+    return instruder_detected
 
 # API: Send SMS message
 def send_sms(sms_message, target_phone='empty'):
@@ -190,7 +193,7 @@ def send_email(email_content, subject_message, alert_type='Notice',
         logging.debug('email_json: {}'.format(email_json))
 
     response = requests.post(_url('/email'), json=email_msg_obj)
-    resp_message = str(response.json())
+    resp_message = str(response)
     email_results = not ('Failed to send email' in resp_message)
     logging.info("send_email Result: {}, details: {}'".format(email_results, resp_message))
 
@@ -201,36 +204,36 @@ if __name__ == '__main__':
     check_service("show_api_list", show_api_list)
 
     # Check sms API
-    # send_sms("test sms")
+    #send_sms("test sms", target_phone='+6598759996')
 
     # Check email API (without attachments)
-    # send_email('Test sending mail.', 'Test email', 'Alert')
+    #send_email('Test sending mail.', 'Test email', 'Alert')
 
     # send email API (with attachements)
     # send_email_with_files('Test sending mail.', 'Test email', 'Alert',
     #                       ['img/test1.png', 'img/test2.png', 'img/test2.jpg'])
-    # test_send_email_with_images('Test sending mail with images.', 'Test email with images', 'Alert',
-    #                             ['img/test1.png', 'img/test2.png', 'img/test2.jpg'])
+    test_send_email_with_images('Test sending mail with images.', 'Test email with images', 'Alert',
+                                 ['img/test1.png', 'img/test2.png', 'img/test2.jpg'])
 
     # Report intruder status
-    inform_intruder_status(intruder_detected=True)
-
-    time.sleep(1)
-
-    intruder_found = query_intruder_status()
-
-    time.sleep(1)
-
-    intruder_found = query_intruder_status()
-
-    time.sleep(1)
-
-    inform_intruder_status(intruder_detected=False)
-
-    time.sleep(1)
-
-    intruder_found = query_intruder_status()
-
-    time.sleep(1)
-
-    intruder_found = query_intruder_status()
+    # inform_intruder_status(intruder_detected=True)
+    #
+    # time.sleep(1)
+    #
+    # intruder_found = query_intruder_status()
+    #
+    # time.sleep(1)
+    #
+    # intruder_found = query_intruder_status()
+    #
+    # time.sleep(1)
+    #
+    # inform_intruder_status(intruder_detected=False)
+    #
+    # time.sleep(1)
+    #
+    # intruder_found = query_intruder_status()
+    #
+    # time.sleep(1)
+    #
+    # intruder_found = query_intruder_status()

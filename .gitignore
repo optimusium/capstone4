@@ -10,3 +10,9 @@ mtcnn/__pycache__/
 mtcnn/network/__pycache__/
 mtcnn/exceptions/__pycache__/
 logs/
+training/mtcnn/exceptions/__pycache__/__init__.cpython-36.pyc
+training/mtcnn/exceptions/__pycache__/
+training/mtcnn/network/__pycache__/__init__.cpython-36.pyc
+training/mtcnn/network/__pycache__/
+training/mtcnn/__pycache__/__init__.cpython-36.pyc
+training/mtcnn/__pycache__/mtcnn.cpython-36.pyc

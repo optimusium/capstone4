@@ -103,9 +103,11 @@ def monitor_access():
             if num_unkown_faces > 0:
                 log.info(f"Unkown face found: {num_unkown_faces}")
                 current_time = datetime.now().strftime('%m/%d/%Y, %H:%M:%S')
+                num_unkown_faces_desc = "An" if num_unkown_faces == 1 else str(num_unkown_faces)
+                
                 # Sent SMS alert
-                sms_message = "Detection Alert - Unauthorized {} person: {}".format(
-                        num_unkown_faces, current_time) 
+                sms_message = "{} intruder detected on {}".format(
+                        num_unkown_faces_desc, current_time) 
                 
                 # To avoid SMS sending too much, only send sms every 5 minutes
                 last_sms_sent_time = sms_sent_time
@@ -128,9 +130,9 @@ def monitor_access():
                 email_wait_time = time() - last_email_sent_time
                 if last_email_sent_time == 0 or email_wait_time >= 60:
                     # Sent Email alert
-                    email_content = "Unauthorized {} person: {}".format(
-                            num_unkown_faces, current_time)
-                    email_subject = "Unauthorized Person Detected"
+                    email_content = "{} intruder has been detected on {}".format(
+                            num_unkown_faces_desc, current_time)
+                    email_subject = "Intruder Detected"
                     send_email(email_content, email_subject, "Detection Alert",
                                image_name_prefix="unknown_", 
                                image_list=unkown_face_images)

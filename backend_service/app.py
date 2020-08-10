@@ -91,6 +91,7 @@ def email_api():
     smtp_password = config['email_service']['smtp_password']
     from_account = config['email_service']['from_account']
     to_accounts = config['email_service']['to_accounts']
+    to_accounts_list = [x.strip() for x in to_accounts.split(',')]
     subject_template = config['email_service']['email_template']['email_subject']
     body_template = config['email_service']['email_template']['email_body']
 
@@ -127,7 +128,7 @@ def email_api():
 
         with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
             server.login(smtp_login, smtp_password)
-            server.sendmail(from_account, to_accounts, email_message.as_string())
+            server.sendmail(from_account, to_accounts_list, email_message.as_string())
 
         resp_message = 'Sent OK!'
     except Exception:
@@ -145,7 +146,7 @@ def inform_intruder_api():
         intruder_detected = (intruder_status is not None) and (intruder_status.strip().lower() == 'true')
         logging.info(f"Received intruder status: {intruder_detected} with message: {intruder_status}")
 
-        if intruder_detected:
+        if intruder_detected and not status_queue.empty():
             status_queue.put("1")
 
         resp_message = str("success")
@@ -184,5 +185,5 @@ if __name__ == '__main__':
                         ])
     app.logger.info("Starting backend_service")
     app.config['alert_service_config'] = init_config()
-    app.config['intruder_status_queue'] = queue.Queue(maxsize=10)
+    app.config['intruder_status_queue'] = queue.Queue(maxsize=2000)
     app.run(host='127.0.0.1', port=4980)
