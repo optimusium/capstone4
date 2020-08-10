@@ -47,7 +47,7 @@ while True:
 
     if valueDict.get(0) is not None:
         if valueDict[0] / fgMask.size < 0.98:
-            # print("trigger========================", datetime.now())
+            print("trigger========================", datetime.now())
             AlertClient.inform_intruder_status(True)
             # currentTime = datetime.now()
             # timeDiff = currentTime - lastTriggerTime
