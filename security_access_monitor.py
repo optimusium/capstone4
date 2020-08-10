@@ -46,7 +46,10 @@ def monitor_access():
         frame_time=0
         sms_sent_time = 0
         email_sent_time = 0
-        
+        # Email senting period in seconds
+        email_sent_period = 5
+        # SMS sending period in seconds
+        sms_sent_period = 300
     
         while True:
             if not video_capture.isOpened():
@@ -112,7 +115,7 @@ def monitor_access():
                 # To avoid SMS sending too much, only send sms every 5 minutes
                 last_sms_sent_time = sms_sent_time
                 sms_wait_time = time() - last_sms_sent_time
-                if last_sms_sent_time == 0 or sms_wait_time >= 300:
+                if last_sms_sent_time == 0 or sms_wait_time >= sms_sent_period:
                     if sms_phone == "0":
                         send_sms_result = send_sms(sms_message)    
                     else:
@@ -123,12 +126,12 @@ def monitor_access():
                             send_sms_result, sms_message))
                     sms_sent_time = time()
                 else:
-                    log.info(f"Not sending SMS due to waiting time < 5 min")
+                    log.info(f"Not sending SMS due to waiting time < {sms_sent_period} seconds")
                 
-                # To avoid email sending too much, only send sms every 1 minutes
+                # To avoid email sending too much, only send sms every 5 seconds
                 last_email_sent_time = email_sent_time
                 email_wait_time = time() - last_email_sent_time
-                if last_email_sent_time == 0 or email_wait_time >= 60:
+                if last_email_sent_time == 0 or email_wait_time >= email_sent_period:
                     # Sent Email alert
                     email_content = "{} intruder has been detected on {}".format(
                             num_unkown_faces_desc, current_time)
@@ -144,7 +147,7 @@ def monitor_access():
                             send_email_result, email_content))
                     email_sent_time = time()
                 else:
-                    log.info(f"Not sending email due to waiting time < 1 min")
+                    log.info(f"Not sending email due to waiting time < {email_sent_period} seconds")
                 
         
             for faces in faces_list:
