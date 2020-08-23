@@ -1,0 +1,7 @@
+1. final env file(from scratch)
+
+2. read me file for each component(alert, face recognition, intruder detection)
+
+3. how to setup the project from source
+
+4. how to run the project after setup
