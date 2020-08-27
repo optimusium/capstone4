@@ -1,21 +1,55 @@
-Follow the running sequence: 
 
-Follow these steps after conda activate the ml1p13 env. (create environment based on .yml file if you do not have the env)
+**Capstone project: Intruder Detection and Face Recognition** 
 
-pip install dlib
+Prerequisites:
+1. python version >= 3.6
+2. conda version >= 4.6
+For the details of python libraries which are being used, please refer to the ml1p13.yml in env folder
 
-pip install https://pypi.python.org/packages/da/06/bd3e241c4eb0a662914b3b4875fc52dd176a9db0d4a2c915ac2ad8800e9e/dlib-19.7.0-cp36-cp36m-win_amd64.whl#md5=b7330a5b2d46420343fbed5df69e6a3f
+The whole project includes following 3 parts:
 
-pip install face_recognition
+1. intruder detection
 
-If you are end user, run console.py (refer to select operation function)
-If you need to run manually, follow the subsequent steps:
+2. face recognition
+
+3. sms and email alert
+
+~~For the details of each part, please go to according folders and check the readme there.~~
+
+**How to setup the project from source**
+
+1. git clone or download this repo to your local
+
+2. open this capstone4 folder with any python IDE, then choose the env create above.
+
+3. the source codes are included in following folder accordingly:
+
+3.1 backend_service, source codes for sms/email alert and also the communication codes for diff modules
+
+3.2 face_recognition_api, source codes for face recognition   
+
+3.3 IntruderDetection, source codes for intruder detection
 
 
-1.  Running facenet_predict6.py (dlib)
-   
-2.  Running KNN_dlib.py, mlp_dlib.py , logistic_regression_dlib.py , svm_dlib.py (dlib)
-   
-3.  Running voting_dlib.py 
-   
-4. Running webcam_cv3_dlib.py
+~~**How to run the project after setup**~~
+
+
+**How to start this project as a package:**
+
+1. create a conda env with the ml1p13.yml mentioned above.
+
+2. git clone or download this repo to your local
+
+3. open cmd window and go to the project folder like below:
+
+3.1 cd c:/user/gary/capstone4/
+
+3.2 execute Start_project.bat to start the project. This will run all the modules.
+
+**How to start each individual module as a package:**
+
+1. Start_security_access_monitor.bat, used to start alert service and backend communication api.
+
+2. Start_intruder_detection.bat, used to start intruder detection service.
+
+3. Start_face_recognition.bat, used to start face recognition service.
