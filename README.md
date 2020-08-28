@@ -17,7 +17,7 @@ For the details of python libraries which are being used, please refer to the en
 
 2. KNN, MLP, Logistic Regression and SVM classification models, and voting ensemble of these
 
-3. opencv and background subtraction with both mog2 and knn
+3. tensorflow, keras, opencv and background subtraction with both mog2 and knn
 
 4. python REST API based on flask, twilio real-time sms and email alert
 
