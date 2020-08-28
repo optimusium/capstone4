@@ -1,5 +1,0 @@
-#Function of the code
-Detect movement in webcam video through the Background Substraction method. Any detected movement will be display in white against a black background.
-
-#Running the code
-In Command Prompt, run python IntruderDetection_MOG2BackgroundSubtractor.py --input 0

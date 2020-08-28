@@ -8,7 +8,12 @@
 
 2. conda version >= 4.6
 
-For the details of python libraries which are being used, please refer to the environment.yml.
+For the details of python libraries which are needed, please refer to the environment.yml.
+
+
+**How to create the environment:**
+
+conda env create -f environment.yml
 
 
 **Key techniques being used:**
@@ -22,7 +27,7 @@ For the details of python libraries which are being used, please refer to the en
 4. python REST API based on flask, twilio real-time sms and email alert
 
 
-**The whole project includes following 3 parts:**
+**The whole project includes following 3 modules:**
 
 1. intruder detection
 
@@ -39,11 +44,11 @@ For the details of python libraries which are being used, please refer to the en
 
 3. the source codes are included in following folder accordingly:
 
-3.1 backend_service, source codes for sms/email alert and also the communication codes for diff modules
-
-3.2 face_recognition_api, source codes for face recognition   
-
-3.3 intruder_detection, source codes for intruder detection
+    3.1 backend_service, source codes for sms/email alert and also the communication codes for diff modules
+    
+    3.2 face_recognition_api, source codes for face recognition   
+    
+    3.3 intruder_detection, source codes for intruder detection
 
 
 **How to start this project as a package:**
@@ -56,9 +61,9 @@ For the details of python libraries which are being used, please refer to the en
 
 4. go to the project folder like below:
 
-4.1 cd c:/user/gary/capstone4/
-
-4.2 execute start_project.bat to start the project. This will run all the modules.
+    4.1 cd c:/user/gary/capstone4/
+    
+    4.2 execute start_project.bat to start the project. This will run all the modules at one go.
 
 
 **How to start each individual module as a package:**
