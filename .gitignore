@@ -5,7 +5,7 @@ backend_service/logs/*.log
 backend_service/.idea/
 backend_service/__pycache__/
 face_recognition_api/__pycache__/
-IntruderDetection/__pycache__/
+intruder_detection/__pycache__/
 mtcnn/__pycache__/
 mtcnn/network/__pycache__/
 mtcnn/exceptions/__pycache__/

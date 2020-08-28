@@ -11,7 +11,7 @@ from time import sleep
 import argparse
 from datetime import datetime
 
-from IntruderDetection.IntruderDetection_API import IntrusionDetector
+from bk.intruderDetection.IntruderDetection_API import IntrusionDetector
 
 log.basicConfig(level=log.DEBUG,
                 format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
