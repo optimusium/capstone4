@@ -1,5 +1,6 @@
 @echo off
 
+
 start start_alert_service.bat
 
 TIMEOUT /T 1

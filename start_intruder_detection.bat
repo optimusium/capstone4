@@ -1,3 +1,7 @@
 @echo off
 
-python ./intruder_detection/IntruderDetection.py --input 1
+set PYTHONPATH=%PYTHONPATH%;%cd%
+
+cd intruder_detection
+
+python IntruderDetection.py --input 1
