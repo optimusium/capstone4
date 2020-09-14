@@ -1,0 +1,29 @@
+sms_service:
+  account_sid: AC02ef00326f449ecf4424dca873360b45
+  auth_token: e008feb70a3bb39e2611919b7d0ac06b
+  from_phone: '+12768071462'
+  to_phone: '+6594389636'
+
+email_service:
+  smtp_server: 'smtp.gmail.com'
+  smtp_port: 465
+  smtp_login: 'issipagroup01@gmail.com'
+  smtp_password: 'zomizahvkyxxvfho'
+  #smtp_password_old: 'aiautoprocess2020sem1'
+  from_account: 'issipagroup01@gmail.com'
+  to_accounts: 'issipagroup01@gmail.com, han.dc@hotmail.com'
+  email_template:
+    email_subject: '{alert_type}: {subject_message}'
+    email_body: '
+      Hi,
+
+        {body_message}
+
+
+        Please investigate intruder incident.
+
+
+     Regards,
+
+
+      Service Support'
