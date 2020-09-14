@@ -1,5 +1,3 @@
 @echo off
 
-cd intruder_detection
-
-python IntruderDetection.py --input 1
+python ./intruder_detection/IntruderDetection.py --input 1
